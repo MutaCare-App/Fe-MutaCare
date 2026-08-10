@@ -7,7 +7,7 @@ export default function Login() {
     <SafeAreaView className="flex-1 bg-white">
       <View className="flex-1 items-center justify-center">
         <Text className="font-feather-bold text-2xl text-primary-300">
-          ini halaman login
+          ini 
         </Text>
       </View>
     </SafeAreaView>

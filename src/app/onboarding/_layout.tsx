@@ -1,6 +1,5 @@
-import { Stack } from "expo-router";
-import PaginationDots from "@/components/ui/paginations-dots";
-import { usePathname } from "expo-router";
+import PaginationDots from "@/components/onboarding/paginations-dots";
+import { Stack, usePathname } from "expo-router";
 import { View } from "react-native";
 
 // Mapping path ke step index
@@ -27,7 +26,7 @@ export default function OnboardingLayout() {
         pointerEvents="none"
         style={{
           position: "absolute",
-          bottom: 150, 
+          bottom: 150,
           left: 0,
           right: 0,
           alignItems: "center",
