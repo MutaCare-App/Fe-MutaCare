@@ -10,7 +10,7 @@ export default function OnboardingIndex() {
     <LinearGradient colors={["#C2FFC7", "#FFFFFF"]} style={{ flex: 1 }}>
       <SafeAreaView className="p-5" style={{ flex: 1 }}>
         <View className="w-full items-center px-2" style={{ flex: 1 }}>
-          {/* IMAGE + TEKS */}
+          {/* IMAGE + TEXT */}
           <View
             className="w-full flex flex-col items-center justify-center pt-36"
             style={{ flex: 3 }}
@@ -25,7 +25,7 @@ export default function OnboardingIndex() {
             </View>
             {/* TEXT */}
             <View className="mt-20 flex flex-col items-center justify-start ">
-              <Text className="font-feather-bold text-4xl text-center text-primary-300">
+              <Text className="font-feather-bold text-4xl text-center text-primary-300" >
                 Selamat Datang di{" "}
                 <Text className="text-brand-medium text-4xl">Mutacare</Text>
               </Text>

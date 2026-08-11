@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "dependencies": {
     "@expo/ui": "~57.0.9",
+    "@rn-primitives/label": "^1.5.2",
     "@rn-primitives/slot": "^1.5.2",
     "babel-preset-expo": "^57.0.6",
     "class-variance-authority": "^0.7.1",
