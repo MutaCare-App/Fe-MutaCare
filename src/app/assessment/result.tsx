@@ -22,7 +22,7 @@ export default function AssessmentResult() {
         <ResultSummaryGrid />
 
         {/* Tombol Aksi Bawah */}
-        <ResultFooter onPress={() => router.replace("/")} />
+        <ResultFooter onPress={() => router.replace("/dashboard")} />
       </SafeAreaView>
     </View>
   );
