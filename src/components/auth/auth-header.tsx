@@ -5,7 +5,7 @@ import Logo from "../../../assets/logo/mutacare-logo.svg";
 export default function AuthHeader() {
   const { width: screenWidth } = useWindowDimensions();
   const circleSize = screenWidth * 1.5;
-  const headerHeight = 220;
+  const headerHeight = 170;
 
   return (
     <View
