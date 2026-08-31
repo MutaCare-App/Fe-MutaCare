@@ -50,6 +50,7 @@ export default function ReflectionMoodScreen() {
   return (
     <ReflectionShell
       actionLabel="Lanjutkan"
+      disabled={!mood}
       onAction={() => {
         if (mood) {
           router.push("/reflection/achievements");
