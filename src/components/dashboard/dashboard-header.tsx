@@ -48,18 +48,18 @@ export function DashboardHeader({
           <AvatarImage source={imageSource} />
           <AvatarFallback>
             <Text className="font-poppins-semibold text-neutral-600 text-base">
-              {userName.charAt(0)}
+              {userName ? userName.charAt(0).toUpperCase() : "U"}
             </Text>
           </AvatarFallback>
         </Avatar>
         <View className="flex-1">
           <View className="flex-row items-center gap-1.5">
-            <HandWavingIcon size={20} weight="fill" className="text-brand-accent" />
+            <HandWavingIcon size={20} weight="fill" className="text-brand-accent"/>
             <Text className="font-poppins-medium text-neutral-700 text-base">
               Selamat Pagi,
             </Text>
           </View>
-          <Text className="font-poppins-bold text-neutral-700 text-2xl leading-2">
+          <Text className="font-poppins-bold text-neutral-700 text-2xl leading-7">
             {userName}
           </Text>
         </View>

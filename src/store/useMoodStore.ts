@@ -1,9 +1,10 @@
 import { create } from "zustand";
+import { ImageSourcePropType } from "react-native";
 
 export interface MoodItem {
   id: number;
   label: string;
-  image: any;
+  image: ImageSourcePropType;
 }
 
 export const MOODS: MoodItem[] = [

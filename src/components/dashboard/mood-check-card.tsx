@@ -52,7 +52,7 @@ export function MoodCheckCard({
 
         {/* Footer Card */}
         <View className="flex flex-col items-center ">
-          <Text className="font-poppins text-center text-neutral-700 text-sm">
+          <Text className="font-poppins text-center text-neutral-700 text-xs">
             Terima Kasih Sudah Berbagi
           </Text>
           <Pressable
