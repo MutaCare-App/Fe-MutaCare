@@ -48,7 +48,7 @@ export function DashboardHeader({
           <AvatarImage source={imageSource} />
           <AvatarFallback>
             <Text className="font-poppins-semibold text-neutral-600 text-base">
-              {userName ? userName.charAt(0).toUpperCase() : "U"}
+              {userName?.trim() ? userName.trim().charAt(0).toUpperCase() : "U"}
             </Text>
           </AvatarFallback>
         </Avatar>

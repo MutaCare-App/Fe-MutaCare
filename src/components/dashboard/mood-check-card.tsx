@@ -6,8 +6,6 @@ import { Image, Pressable, View } from "react-native";
 
 iconWithClassName(SmileyIcon);
 
-export { MOODS, type MoodItem };
-
 export function MoodCheckCard({
   onSelectMood,
 }: {
