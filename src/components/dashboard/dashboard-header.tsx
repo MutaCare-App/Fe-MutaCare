@@ -1,11 +1,14 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Text } from "@/components/ui/text";
 import { iconWithClassName } from "@/lib/iconWithClassName";
 import { FireIcon } from "phosphor-react-native/src/icons/Fire";
 import { HandWavingIcon } from "phosphor-react-native/src/icons/HandWaving";
-import { Image, Pressable, View } from "react-native";
+import { ImageSourcePropType, Pressable, View } from "react-native";
 
 iconWithClassName(HandWavingIcon);
 iconWithClassName(FireIcon);
+
+const DEFAULT_AVATAR = require("../../../assets/images/dummy-profile.png");
 
 interface DayStreak {
   day: string;
@@ -22,29 +25,41 @@ const STREAK_DAYS: DayStreak[] = [
   { day: "Min", active: false },
 ];
 
+interface DashboardHeaderProps {
+  userName?: string;
+  avatarUrl?: string | ImageSourcePropType;
+}
+
 export function DashboardHeader({
   userName = "Lee Chaeryeong",
-  avatarUrl = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=250&auto=format&fit=crop",
-}: {
-  userName?: string;
-  avatarUrl?: string;
-}) {
+  avatarUrl,
+}: DashboardHeaderProps) {
+  const imageSource = avatarUrl
+    ? typeof avatarUrl === "string"
+      ? { uri: avatarUrl }
+      : avatarUrl
+    : DEFAULT_AVATAR;
+
   return (
-    <View className="bg-[#9DCCA4] pt-4 pb-5 px-5 rounded-b-[32px]">
+    <View className="bg-secondary-200 pt-4 pb-5 px-5 rounded-b-3xl">
       {/* Profil & Salam */}
       <View className="flex-row items-center gap-3">
-        <Image
-          source={{ uri: avatarUrl }}
-          className="w-13 h-13 rounded-full border-2 border-white"
-        />
+        <Avatar alt={`${userName}'s avatar`} className="size-16 border border-transparent">
+          <AvatarImage source={imageSource} />
+          <AvatarFallback>
+            <Text className="font-poppins-semibold text-neutral-600 text-base">
+              {userName.charAt(0)}
+            </Text>
+          </AvatarFallback>
+        </Avatar>
         <View className="flex-1">
           <View className="flex-row items-center gap-1.5">
-            <HandWavingIcon size={18} weight="fill" className="text-amber-400" />
-            <Text className="font-poppins-medium text-neutral-800 text-sm">
+            <HandWavingIcon size={20} weight="fill" className="text-brand-accent" />
+            <Text className="font-poppins-medium text-neutral-700 text-base">
               Selamat Pagi,
             </Text>
           </View>
-          <Text className="font-poppins-bold text-neutral-800 text-xl leading-6">
+          <Text className="font-poppins-bold text-neutral-700 text-2xl leading-2">
             {userName}
           </Text>
         </View>
@@ -53,7 +68,7 @@ export function DashboardHeader({
       {/* Streak Harian Section */}
       <View className="mt-4">
         <View className="flex-row justify-between items-center mb-2.5">
-          <Text className="font-poppins-semibold text-neutral-800 text-xs">
+          <Text className="font-poppins-semibold text-neutral-700 text-sm">
             Streak Harian
           </Text>
           <Pressable hitSlop={8}>

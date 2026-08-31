@@ -1,8 +1,8 @@
 import { Stack } from "expo-router";
 import { configureReanimatedLogger, ReanimatedLogLevel } from "react-native-reanimated";
 import * as SplashScreen from "expo-splash-screen";
-import {useFonts} from "expo-font";
-import {useEffect} from "react";
+import { useFonts } from "expo-font";
+import { useEffect } from "react";
 import { View } from "react-native";
 import "../../global.css";
 
@@ -37,15 +37,14 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (loaded || error) { 
+    if (loaded || error) {
       SplashScreen.hideAsync();
-
     }
   }, [loaded, error]);
 
   if (!loaded && !error) {
     return null;
-  };
+  }
 
   return (
     <View style={{ flex: 1 }}>
