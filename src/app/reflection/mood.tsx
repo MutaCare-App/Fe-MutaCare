@@ -50,7 +50,11 @@ export default function ReflectionMoodScreen() {
   return (
     <ReflectionShell
       actionLabel="Lanjutkan"
-      onAction={() => router.push("/reflection/achievements")}
+      onAction={() => {
+        if (mood) {
+          router.push("/reflection/achievements");
+        }
+      }}
       onBack={() => router.back()}
     >
       <Text className="w-full font-feather-bold text-2xl leading-[30px] tracking-[0.8px] text-primary-300">
