@@ -4,13 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Text } from "@/components/ui/text";
 import { iconWithClassName } from "@/lib/iconWithClassName";
-import { Link } from "expo-router";
+import { useAuthStore } from "@/store/useAuthStore";
+import { Link, useRouter } from "expo-router";
 import { EnvelopeIcon } from "phosphor-react-native/src/icons/Envelope";
 import { EyeIcon } from "phosphor-react-native/src/icons/Eye";
 import { EyeSlashIcon } from "phosphor-react-native/src/icons/EyeSlash";
 import { KeyIcon } from "phosphor-react-native/src/icons/Key";
 import { useState } from "react";
-import { Image, Pressable, View } from "react-native";
+import { ActivityIndicator, Image, Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // Daftarkan icon ke NativeWind
@@ -20,8 +21,40 @@ iconWithClassName(EyeIcon);
 iconWithClassName(EyeSlashIcon);
 
 export default function Login() {
-  // 1. State untuk toggle password visibility
+  const router = useRouter();
+  const { loginUser, isLoading, error, clearError } = useAuthStore();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  const handleLogin = async () => {
+    setLocalError(null);
+    clearError();
+
+    if (!email.trim()) {
+      setLocalError("Email wajib diisi");
+      return;
+    }
+
+    if (!password) {
+      setLocalError("Kata sandi wajib diisi");
+      return;
+    }
+
+    const success = await loginUser({
+      email: email.trim(),
+      password,
+    });
+
+    if (success) {
+      // Redirect ke halaman assessment setelah berhasil login
+      router.replace("/assessment");
+    }
+  };
+
+  const activeError = localError || error;
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -31,17 +64,26 @@ export default function Login() {
         edges={["bottom", "left", "right"]}
         className="items-center px-8 flex justify-between"
       >
-        <View className="flex w-full ">
+        <View className="flex w-full">
           <View className="flex items-center">
             <Text className="pt-6 text-3xl font-feather-bold text-primary-300">
               Masuk ke Mutacare
             </Text>
             <Text className="text-neutral-700 font-poppins text-center pt-1">
-              Masuk untuk melanjutkan perjalanan terapimu{" "}
+              Masuk untuk melanjutkan perjalanan terapimu
             </Text>
           </View>
 
-          <View className="flex gap-4 pt-10 w-full">
+          {/* Banner Error jika ada */}
+          {activeError && (
+            <View className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <Text className="text-red-600 font-poppins text-sm text-center">
+                {activeError}
+              </Text>
+            </View>
+          )}
+
+          <View className="flex gap-4 pt-6 w-full">
             {/* Input Email */}
             <View>
               <Label className="font-poppins-semibold text-base">Email</Label>
@@ -53,6 +95,12 @@ export default function Login() {
                 <Input
                   placeholder="Masukkan Alamat Email Anda"
                   keyboardType="email-address"
+                  autoCapitalize="none"
+                  value={email}
+                  onChangeText={(text) => {
+                    setEmail(text);
+                    setLocalError(null);
+                  }}
                   className="pl-14"
                 />
               </View>
@@ -71,6 +119,11 @@ export default function Login() {
                 <Input
                   placeholder="Masukkan Kata Sandi Anda"
                   secureTextEntry={!showPassword}
+                  value={password}
+                  onChangeText={(text) => {
+                    setPassword(text);
+                    setLocalError(null);
+                  }}
                   className="pl-14 pr-14"
                 />
                 <Pressable
@@ -86,13 +139,21 @@ export default function Login() {
                 </Pressable>
               </View>
             </View>
-            <Link href="/assessment" asChild>
-              <Button className="bg-primary-300 w-full h-16 rounded-lg justify-center items-center">
+
+            {/* Tombol Masuk */}
+            <Button
+              onPress={handleLogin}
+              disabled={isLoading}
+              className="bg-primary-300 w-full h-16 rounded-lg justify-center items-center mt-2"
+            >
+              {isLoading ? (
+                <ActivityIndicator color="#fff" size="small" />
+              ) : (
                 <Text className="text-white font-poppins-semibold text-lg">
-                  Lanjut
+                  Masuk
                 </Text>
-              </Button>
-            </Link>
+              )}
+            </Button>
           </View>
 
           <View className="flex justify-center items-center py-4 gap-2">
@@ -109,7 +170,7 @@ export default function Login() {
           </View>
         </View>
 
-        <View>
+        <View className="py-4">
           <Text className="font-poppins text-neutral-700 text-center">
             Belum punya akun?{" "}
             <Link href="/auth/register" asChild>

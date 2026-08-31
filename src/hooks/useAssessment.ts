@@ -1,76 +1,76 @@
-import { ASSESSMENT_QUESTIONS, QuestionItem } from "@/data/assessment";
+import { useAssessmentStore } from "@/store/useAssessmentStore";
+import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect } from "react";
 
 export function useAssessment() {
   const router = useRouter();
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string[]>>({});
+  const token = useAuthStore((state) => state.token);
 
-  const currentQ: QuestionItem = ASSESSMENT_QUESTIONS[currentIndex];
-  const currentSelections: string[] = selectedAnswers[currentQ.id] || [];
+  const {
+    questions,
+    currentIndex,
+    selectedAnswers,
+    isLoading,
+    isSubmitting,
+    error,
+    fetchQuestions,
+    selectOption,
+    nextQuestion,
+    prevQuestion,
+    submitAssessment,
+  } = useAssessmentStore();
 
-  // Wajib diisi (Required): minimal 1 pilihan terpilih
+  useEffect(() => {
+    fetchQuestions(token);
+  }, [token]);
+
+  const currentQ = questions[currentIndex] || questions[0];
+  const currentSelections: string[] = selectedAnswers[currentQ?.id] || [];
   const isCurrentAnswered = currentSelections.length > 0;
 
-  // Hitung persentase nilai progress (33.3%, 66.6%, 100%)
-  const progressValue = (currentQ.stageStep / currentQ.stageTotalSteps) * 100;
+  // Calculate real progress (e.g. 8.3%, 16.6% ... 100%)
+  const progressValue = questions.length > 0 ? ((currentIndex + 1) / questions.length) * 100 : 0;
 
   const handleSelectOption = (option: string) => {
-    if (currentQ.type === "radio") {
-      setSelectedAnswers((prev) => ({
-        ...prev,
-        [currentQ.id]: [option],
-      }));
-    } else {
-      const isSelected = currentSelections.includes(option);
-      if (isSelected) {
-        setSelectedAnswers((prev) => ({
-          ...prev,
-          [currentQ.id]: currentSelections.filter((item) => item !== option),
-        }));
-      } else {
-        if (currentQ.maxSelect && currentSelections.length >= currentQ.maxSelect) {
-          return;
-        }
-        setSelectedAnswers((prev) => ({
-          ...prev,
-          [currentQ.id]: [...currentSelections, option],
-        }));
+    if (!currentQ) return;
+    selectOption(currentQ.id, option, currentQ.type, currentQ.maxSelect);
+  };
+
+  const handleNext = async () => {
+    if (!isCurrentAnswered || isSubmitting) return;
+
+    const isLastQuestion = nextQuestion();
+
+    if (isLastQuestion) {
+      // Submit assessment answers payload to backend
+      const resultData = await submitAssessment(token);
+      if (resultData || !error) {
+        router.replace("/assessment/result");
       }
     }
   };
 
-  const handleNext = () => {
-    if (!isCurrentAnswered) return; // Wajib diisi
-
-    if (currentIndex < ASSESSMENT_QUESTIONS.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
-    } else {
-      // Selesai asesmen -> arahkan ke halaman hasil
-      router.replace("/assessment/result");
-    }
-  };
-
   const handleBack = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex((prev) => prev - 1);
-    } else {
+    const didGoBack = prevQuestion();
+    if (!didGoBack) {
       router.back();
     }
   };
 
   return {
     currentIndex,
-    totalQuestions: ASSESSMENT_QUESTIONS.length,
+    totalQuestions: questions.length,
     currentQ,
     currentSelections,
     selectedAnswers,
     progressValue,
     isCurrentAnswered,
+    isLoading,
+    isSubmitting,
+    error,
     handleSelectOption,
     handleNext,
     handleBack,
   };
 }
-

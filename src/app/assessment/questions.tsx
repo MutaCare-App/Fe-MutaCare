@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { useAssessment } from "@/hooks/useAssessment";
 import { cn } from "@/lib/utils";
-import { ScrollView, View } from "react-native";
+import { ActivityIndicator, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function AssessmentQuestions() {
@@ -14,10 +14,22 @@ export default function AssessmentQuestions() {
     currentSelections,
     progressValue,
     isCurrentAnswered,
+    isLoading,
+    isSubmitting,
+    error,
     handleSelectOption,
     handleNext,
     handleBack,
   } = useAssessment();
+
+  if (isLoading || !currentQ) {
+    return (
+      <View style={{ flex: 1, backgroundColor: "#fff", justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#3B82F6" />
+        <Text className="font-poppins text-neutral-700 mt-4">Memuat Pertanyaan Asesmen...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -39,6 +51,14 @@ export default function AssessmentQuestions() {
           contentContainerStyle={{ flexGrow: 1 }}
           className="w-full my-4"
         >
+          {error && (
+            <View className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <Text className="text-red-600 font-poppins text-sm text-center">
+                {error}
+              </Text>
+            </View>
+          )}
+
           <AssessmentQuestionHeader
             title={currentQ.title}
             subtitle={currentQ.subtitle}
@@ -52,24 +72,26 @@ export default function AssessmentQuestions() {
           />
         </ScrollView>
 
-        {/* Bottom Button (Disabled jika belum diisi) */}
+        {/* Bottom Button */}
         <View className="w-full pt-2">
           <Button
             onPress={handleNext}
-            disabled={!isCurrentAnswered}
+            disabled={!isCurrentAnswered || isSubmitting}
             className={cn(
               "bg-primary-300 w-full h-14 rounded-xl justify-center items-center active:bg-primary-400",
-              !isCurrentAnswered && "opacity-40"
+              (!isCurrentAnswered || isSubmitting) && "opacity-40"
             )}
           >
-            <Text className="text-white font-poppins-semibold text-lg">
-              {currentQ.buttonText}
-            </Text>
+            {isSubmitting ? (
+              <ActivityIndicator color="#fff" size="small" />
+            ) : (
+              <Text className="text-white font-poppins-semibold text-lg">
+                {currentQ.buttonText}
+              </Text>
+            )}
           </Button>
         </View>
       </SafeAreaView>
     </View>
   );
 }
-
-

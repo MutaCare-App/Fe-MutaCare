@@ -4,14 +4,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Text } from "@/components/ui/text";
 import { iconWithClassName } from "@/lib/iconWithClassName";
-import { Link } from "expo-router";
+import { useAuthStore } from "@/store/useAuthStore";
+import { Link, useRouter } from "expo-router";
 import { EnvelopeIcon } from "phosphor-react-native/src/icons/Envelope";
 import { EyeIcon } from "phosphor-react-native/src/icons/Eye";
 import { EyeSlashIcon } from "phosphor-react-native/src/icons/EyeSlash";
 import { KeyIcon } from "phosphor-react-native/src/icons/Key";
 import { UserIcon } from "phosphor-react-native/src/icons/User";
 import { useState } from "react";
-import { Image, Pressable, ScrollView, View } from "react-native";
+import { ActivityIndicator, Image, Pressable, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // Daftarkan icon ke NativeWind
@@ -22,8 +23,55 @@ iconWithClassName(EyeIcon);
 iconWithClassName(EyeSlashIcon);
 
 export default function Register() {
+  const router = useRouter();
+  const { registerUser, isLoading, error, clearError } = useAuthStore();
+
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  const handleRegister = async () => {
+    setLocalError(null);
+    clearError();
+
+    if (!fullName.trim() || fullName.trim().length < 2) {
+      setLocalError("Nama lengkap minimal 2 karakter");
+      return;
+    }
+
+    if (!email.trim()) {
+      setLocalError("Email wajib diisi");
+      return;
+    }
+
+    if (!password || password.length < 6) {
+      setLocalError("Kata sandi minimal 6 karakter");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setLocalError("Konfirmasi kata sandi tidak cocok dengan kata sandi");
+      return;
+    }
+
+    const success = await registerUser({
+      fullName: fullName.trim(),
+      email: email.trim(),
+      password,
+      confirmPassword,
+    });
+
+    if (success) {
+      // Redirect ke halaman assessment setelah berhasil registrasi
+      router.replace("/assessment");
+    }
+  };
+
+  const activeError = localError || error;
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -50,8 +98,17 @@ export default function Register() {
               </Text>
             </View>
 
+            {/* Banner Error jika ada */}
+            {activeError && (
+              <View className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <Text className="text-red-600 font-poppins text-sm text-center">
+                  {activeError}
+                </Text>
+              </View>
+            )}
+
             {/* Form Fields */}
-            <View className="flex gap-4 pt-8 w-full">
+            <View className="flex gap-4 pt-6 w-full">
               {/* Input Nama Lengkap */}
               <View>
                 <Label className="font-poppins-semibold text-base">
@@ -64,6 +121,11 @@ export default function Register() {
                   />
                   <Input
                     placeholder="Masukkan Nama Lengkap Anda"
+                    value={fullName}
+                    onChangeText={(text) => {
+                      setFullName(text);
+                      setLocalError(null);
+                    }}
                     className="pl-14"
                   />
                 </View>
@@ -80,6 +142,12 @@ export default function Register() {
                   <Input
                     placeholder="Masukkan Alamat Email Anda"
                     keyboardType="email-address"
+                    autoCapitalize="none"
+                    value={email}
+                    onChangeText={(text) => {
+                      setEmail(text);
+                      setLocalError(null);
+                    }}
                     className="pl-14"
                   />
                 </View>
@@ -98,6 +166,11 @@ export default function Register() {
                   <Input
                     placeholder="Buat Kata Sandi Anda"
                     secureTextEntry={!showPassword}
+                    value={password}
+                    onChangeText={(text) => {
+                      setPassword(text);
+                      setLocalError(null);
+                    }}
                     className="pl-14 pr-14"
                   />
                   <Pressable
@@ -127,6 +200,11 @@ export default function Register() {
                   <Input
                     placeholder="Konfirmasi Kata Sandi Anda"
                     secureTextEntry={!showConfirmPassword}
+                    value={confirmPassword}
+                    onChangeText={(text) => {
+                      setConfirmPassword(text);
+                      setLocalError(null);
+                    }}
                     className="pl-14 pr-14"
                   />
                   <Pressable
@@ -144,10 +222,18 @@ export default function Register() {
               </View>
 
               {/* Tombol Daftar */}
-              <Button className="bg-primary-300 w-full h-16 rounded-lg justify-center items-center mt-2">
-                <Text className="text-white font-poppins-semibold text-lg">
-                  Daftar
-                </Text>
+              <Button
+                onPress={handleRegister}
+                disabled={isLoading}
+                className="bg-primary-300 w-full h-16 rounded-lg justify-center items-center mt-2"
+              >
+                {isLoading ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <Text className="text-white font-poppins-semibold text-lg">
+                    Daftar
+                  </Text>
+                )}
               </Button>
             </View>
 
