@@ -23,10 +23,11 @@ export function ReflectionShell({
   return (
     <View className="flex-1 bg-white">
       <SafeAreaView
-        className="flex-1 pb-2"
+        className="p-5"
         edges={["top", "bottom", "left", "right"]}
+        style={{ flex: 1 }}
       >
-        <View className="flex-1 px-8">
+        <View className="w-full flex-1 px-2">
           {onBack ? (
             <View className="h-24 pt-5">
               <Pressable
@@ -41,17 +42,17 @@ export function ReflectionShell({
           ) : null}
 
           <View className="flex-1">{children}</View>
-        </View>
 
-        <View className="w-full px-8">
-          <Button
-            onPress={onAction}
-            className="h-12 w-full rounded-lg bg-primary-300 active:bg-primary-400"
-          >
-            <Text className="font-poppins-semibold text-base tracking-[0.8px] text-white">
-              {actionLabel}
-            </Text>
-          </Button>
+          <View className="w-full justify-end">
+            <Button
+              onPress={onAction}
+              className="h-12 w-full rounded-lg bg-primary-300 active:bg-primary-400"
+            >
+              <Text className="font-poppins-semibold text-base tracking-[0.8px] text-white">
+                {actionLabel}
+              </Text>
+            </Button>
+          </View>
         </View>
       </SafeAreaView>
     </View>
