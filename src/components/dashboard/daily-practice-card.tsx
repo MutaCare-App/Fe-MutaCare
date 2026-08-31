@@ -21,7 +21,7 @@ export function DailyPracticeCard() {
       {/* Ilustrasi & Pesan Empty State */}
       <View className="items-center justify-center pt-2 pb-1">
         <Image
-          source={require("../../../assets/images/assessment.png")}
+          source={require("../../../assets/images/empty-state-task.png")}
           className="w-40 h-40"
           resizeMode="contain"
         />
