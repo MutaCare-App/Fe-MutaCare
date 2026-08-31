@@ -16,8 +16,8 @@ export default function DashboardTabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#4A7C59",
-        tabBarInactiveTintColor: "#9CA3AF",
+        tabBarActiveTintColor: "#609966",
+        tabBarInactiveTintColor: "#A1A1A1",
         tabBarStyle: {
           backgroundColor: "#ffffff",
           borderTopWidth: 1,
