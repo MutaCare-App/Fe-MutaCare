@@ -11,11 +11,11 @@ interface ResultCardPracticeProps {
 }
 
 export function ResultCardPractice({
-  practices = ["• Berbicara Guru", "• Teman Baru"],
+  practices = ["• Berbicara dengan Guru", "• Teman Baru"],
 }: ResultCardPracticeProps) {
   return (
-    <View className="flex-1 border border-neutral-200 rounded-2xl p-2.5 bg-white h-[112px] shadow-sm shadow-black/5">
-      <View className="flex-row items-center gap-1.5">
+    <View className="flex-1 border border-neutral-200 rounded-2xl p-2.5 bg-white min-h-[118px] justify-between shadow-sm shadow-black/5">
+      <View className="flex-row items-center gap-1.5 mb-1">
         <ResultBadgeIcon>
           <BarbellIcon
             size={14}
@@ -28,9 +28,12 @@ export function ResultCardPractice({
         </Text>
       </View>
 
-      <View className="mt-1.5 gap-0.5">
+      <View className="gap-1 flex-1 justify-center">
         {practices.map((item, idx) => (
-          <Text key={idx} className="font-poppins text-[10px] text-neutral-700 leading-3.5">
+          <Text
+            key={idx}
+            className="font-poppins text-[10px] text-neutral-700 leading-4"
+          >
             {item}
           </Text>
         ))}
