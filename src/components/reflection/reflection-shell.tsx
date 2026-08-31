@@ -10,6 +10,7 @@ iconWithClassName(CaretLeftIcon);
 
 interface ReflectionShellProps extends PropsWithChildren {
   actionLabel: string;
+  disabled?: boolean;
   onAction: () => void;
   onBack?: () => void;
 }
@@ -17,6 +18,7 @@ interface ReflectionShellProps extends PropsWithChildren {
 export function ReflectionShell({
   actionLabel,
   children,
+  disabled,
   onAction,
   onBack,
 }: ReflectionShellProps) {
@@ -45,8 +47,9 @@ export function ReflectionShell({
 
           <View className="w-full justify-end">
             <Button
+              disabled={disabled}
               onPress={onAction}
-              className="h-12 w-full rounded-lg bg-primary-300 active:bg-primary-400"
+              className="h-12 w-full rounded-lg bg-primary-300 active:bg-primary-400 disabled:opacity-50"
             >
               <Text className="font-poppins-semibold text-base tracking-[0.8px] text-white">
                 {actionLabel}
