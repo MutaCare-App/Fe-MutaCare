@@ -26,10 +26,10 @@ export function ResultSummaryGrid({
         Ringkasan
       </Text>
 
-      {/* Grid 2x2 Cards */}
+      {/* Grid 2x2 Cards with items-stretch for equal row heights */}
       <View className="gap-2.5">
         {/* Row 1 */}
-        <View className="flex-row gap-2.5">
+        <View className="flex-row items-stretch gap-2.5">
           <ResultCardAnxiety
             levelLabel={anxietyLevel}
             imageSource={anxietyImageSource}
@@ -38,7 +38,7 @@ export function ResultSummaryGrid({
         </View>
 
         {/* Row 2 */}
-        <View className="flex-row gap-2.5">
+        <View className="flex-row items-stretch gap-2.5">
           <ResultCardTarget target={target} />
           <ResultCardRecommendation recommendations={recommendations} />
         </View>

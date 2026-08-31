@@ -16,7 +16,7 @@ export function ResultCardAnxiety({
   imageSource = require("../../../assets/images/anxiety-level/moderate.png"),
 }: ResultCardAnxietyProps) {
   return (
-    <View className="flex-1 border border-neutral-200 rounded-2xl p-2.5 bg-white h-[112px] justify-between shadow-sm shadow-black/5">
+    <View className="flex-1 border border-neutral-200 rounded-2xl p-2.5 bg-white min-h-[118px] justify-between shadow-sm shadow-black/5">
       <View className="flex-row items-center gap-1.5">
         <ResultBadgeIcon>
           <BrainIcon
@@ -30,10 +30,10 @@ export function ResultCardAnxiety({
         </Text>
       </View>
 
-      <View className="items-center justify-center pb-1">
+      <View className="items-center justify-center pb-1 flex-1">
         <Image
           source={imageSource}
-          className="w-12 h-12"
+          className="w-11 h-11"
           resizeMode="contain"
         />
         <Text className="font-poppins-bold text-neutral-800 text-xs mt-0.5">

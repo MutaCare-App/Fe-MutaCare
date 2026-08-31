@@ -14,7 +14,7 @@ export function ResultCardTarget({
   target = "Lebih Percaya Diri Saat Berbicara",
 }: ResultCardTargetProps) {
   return (
-    <View className="flex-1 border border-neutral-200 rounded-2xl p-2.5 bg-white h-[112px] shadow-sm shadow-black/5">
+    <View className="flex-1 border border-neutral-200 rounded-2xl p-2.5 bg-white min-h-[118px] justify-between shadow-sm shadow-black/5">
       <View className="flex-row items-center gap-1.5">
         <ResultBadgeIcon>
           <TargetIcon
@@ -28,8 +28,8 @@ export function ResultCardTarget({
         </Text>
       </View>
 
-      <View className="mt-2 justify-center items-center flex-1">
-        <Text className="font-poppins-bold text-neutral-700 text-center text-sm leading-4">
+      <View className="mt-1 justify-center items-center flex-1">
+        <Text className="font-poppins-bold text-neutral-700 text-center text-xs leading-4" numberOfLines={3} ellipsizeMode="tail">
           {target}
         </Text>
       </View>
