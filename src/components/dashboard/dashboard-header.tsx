@@ -6,7 +6,7 @@ import { FlameIcon } from "phosphor-react-native/src/icons/Flame";
 import { HandWavingIcon } from "phosphor-react-native/src/icons/HandWaving";
 import React, { useRef } from "react";
 import { ImageSourcePropType, Pressable, View } from "react-native";
-import { StreakDetailSheet } from "./streak-detail-sheet";
+import { StreakDetailSheet } from "./streak/streak-detail-sheet";
 
 iconWithClassName(HandWavingIcon);
 iconWithClassName(FlameIcon);
