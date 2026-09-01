@@ -60,6 +60,8 @@ The dashboard header currently uses a hard-coded name, remote Unsplash avatar, a
 
 The standalone Refleksi flow is implemented under `/reflection` as five screens matching the Figma sequence: introduction, mood selection, achievement selection, a free-form note, and completion. `src/components/reflection/` contains its shared shell and check-row presentation, while `src/store/useReflectionStore.ts` holds the selected mood, achievements, and note in memory. The completion CTA clears that temporary state and returns to `/dashboard/journey`. There is not yet an entry point into this flow from the dashboard.
 
+The standalone CBT flow is implemented under `/cbt` as seven screens: introduction, three guarded thought questions (20/40/60%), an interactive thought-reframing card (80%), simulation readiness (100%), and a classroom simulation with a microphone state. `src/components/cbt/` contains the shared shell and choice presentation, `src/store/useCbtStore.ts` holds transient answers/reframe progress, and exact character/classroom artwork lives in `assets/images/cbt/`. There is not yet a dashboard entry point or backend/voice integration for this flow.
+
 ## State and backend contract
 
 The API base URL is selected in this order:
@@ -80,7 +82,7 @@ Implemented endpoints:
 
 Auth responses are expected to include a user and optional session with access token, refresh token, and expiry. Assessment results include severity, anxiety values, practices, target, recommendations, AI summary, and therapy-plan metadata.
 
-All Zustand stores are memory-only: they do not use persistence middleware or secure storage. Reloading the app loses the user, tokens, assessment data, and in-progress reflection. Logout clears only in-memory auth data. Refresh tokens and expiry values are typed but unused.
+All Zustand stores are memory-only: they do not use persistence middleware or secure storage. Reloading the app loses the user, tokens, assessment data, in-progress reflection, and CBT answers. Logout clears only in-memory auth data. Refresh tokens and expiry values are typed but unused.
 
 Assessment behavior:
 
