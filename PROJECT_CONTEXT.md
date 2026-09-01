@@ -1,7 +1,7 @@
 # MutaCare Project Context
 
-Last explored: 2026-08-31
-Baseline commit: `5ccbc6e` (`main`)
+Last explored: 2026-09-01
+Baseline commit: `bb17c63` (`main`)
 Purpose: durable orientation for future contributors and coding-agent sessions. Verify this document against the code when the baseline commit has changed.
 
 ## Product
@@ -54,7 +54,9 @@ The dashboard is a four-tab layout:
 - `index`: implemented static home with header/streak, mood picker, and daily-practice empty state.
 - `journey`: placeholder.
 - `progress`: placeholder.
-- `profile`: placeholder.
+- `profile`: a nested four-screen account flow with the profile menu, editable account form, password form, and initial-assessment summary.
+
+The Profile edit and password forms currently manage values and validation locally because the backend exposes no profile-update or password-change endpoint. The assessment summary reads the latest in-memory assessment result and falls back to the reference content when no result is available.
 
 The dashboard header currently uses a hard-coded name, remote Unsplash avatar, and static streak. Mood selection is component-local and is not saved or sent to an API. The daily-practice card is static.
 
