@@ -1,7 +1,7 @@
 # MutaCare Project Context
 
-Last explored: 2026-08-31
-Baseline commit: `5ccbc6e` (`main`)
+Last explored: 2026-09-01
+Baseline commit: `bb17c63` (`main`)
 Purpose: durable orientation for future contributors and coding-agent sessions. Verify this document against the code when the baseline commit has changed.
 
 ## Product
@@ -37,7 +37,7 @@ Before writing code, follow `AGENTS.md` and read the exact Expo 57 documentation
 
 - `src/app/`: Expo Router screens and layouts.
 - `src/components/ui/`: reusable primitives (`Button`, `Text`, `Input`, `Checkbox`, `RadioGroup`, `Progress`, and related wrappers).
-- `src/components/auth/`, `assessment/`, `dashboard/`, `onboarding/`: feature-specific presentation components.
+- `src/components/auth/`, `assessment/`, `dashboard/`, `onboarding/`, `reflection/`, `relaxation/`: feature-specific presentation components.
 - `src/store/`: Zustand stores containing async actions and transient app state.
 - `src/services/`: typed backend endpoint adapters.
 - `src/lib/api.ts`: base URL selection, bearer-token injection, JSON envelope parsing, and shared request errors.
@@ -54,11 +54,15 @@ The dashboard is a four-tab layout:
 - `index`: implemented static home with header/streak, mood picker, and daily-practice empty state.
 - `journey`: placeholder.
 - `progress`: placeholder.
-- `profile`: placeholder.
+- `profile`: a nested four-screen account flow with the profile menu, editable account form, password form, and initial-assessment summary.
+
+The Profile edit and password forms currently manage values and validation locally because the backend exposes no profile-update or password-change endpoint. The assessment summary reads the latest in-memory assessment result and falls back to the reference content when no result is available.
 
 The dashboard header currently uses a hard-coded name, remote Unsplash avatar, and static streak. Mood selection is component-local and is not saved or sent to an API. The daily-practice card is static.
 
 The standalone Refleksi flow is implemented under `/reflection` as five screens matching the Figma sequence: introduction, mood selection, achievement selection, a free-form note, and completion. `src/components/reflection/` contains its shared shell and check-row presentation, while `src/store/useReflectionStore.ts` holds the selected mood, achievements, and note in memory. The completion CTA clears that temporary state and returns to `/dashboard/journey`. There is not yet an entry point into this flow from the dashboard.
+
+The standalone Relaksasi flow is implemented under `/relaxation` with a preparation screen and a local three-minute breathing session. The session includes a selectable ambient-sound label, pause/resume countdown, breathing instructions, and completion modal; continuing returns to `/dashboard/journey`. The sound selector is currently visual only because no ambient-audio assets or playback integration are present.
 
 ## State and backend contract
 
@@ -70,6 +74,43 @@ The API base URL is selected in this order:
 
 `apiFetch` assumes every response is JSON shaped as `{ success, message, data?, error? }`. It adds `Content-Type: application/json`, optionally adds `Authorization: Bearer <token>`, and throws when HTTP status or envelope success is false.
 
+### Backend request pipeline
+
+Backend calls follow a consistent layering pattern:
+
+1. A screen validates user input and calls a Zustand action or feature hook.
+2. The store owns loading, error, and result state and calls a typed service method.
+3. The service chooses the endpoint, HTTP method, request payload, and expected response type.
+4. `src/lib/api.ts` builds the full URL, merges headers, calls the global `fetch`, parses the shared JSON envelope, and throws an `Error` for unsuccessful HTTP/envelope responses.
+5. The service requires `res.data`; the store converts success or failure into UI-facing state.
+
+Auth login is the clearest example:
+
+- `src/app/auth/login.tsx` trims and validates the email, requires a password, then calls `loginUser({ email, password })`.
+- `useAuthStore.loginUser` sets `isLoading`, clears the previous error, and calls `AuthService.login`.
+- `AuthService.login` sends `POST /auth/login` with `JSON.stringify({ email, password })` and no bearer token.
+- `apiFetch` sends JSON to `${API_BASE_URL}/auth/login`, parses `ApiEnvelope<AuthResponseData>`, and returns it only when both the HTTP response and envelope report success.
+- The service returns `data`; the store keeps `data.user` and `data.session?.accessToken`, marks the user authenticated, and returns `true` to the screen.
+- The screen then replaces the route with `/assessment`. On failure, the store keeps the thrown message in `error`, returns `false`, and the screen renders the error banner.
+
+Registration uses the same path with `POST /auth/register` and `{ fullName, email, password, confirmPassword }`. Client validation requires a two-character name, an email, a six-character password, and matching confirmation before the request.
+
+Assessment requests are orchestrated by `src/hooks/useAssessment.ts`:
+
+- On mount or token change, the hook calls `useAssessmentStore.fetchQuestions(token)`.
+- `AssessmentService.getQuestions` sends `GET /assessments/questions`; `apiFetch` adds `Authorization: Bearer <token>` when the in-memory token is non-null.
+- Any question-fetch failure is swallowed by the assessment store and replaced with the nine local questions in `src/data/assessment.ts`; no fetch error is shown to the user.
+- After the final answered question, `submitAssessment(token)` sends `POST /assessments` with `{ answersPayload: Record<number, string[]> }` and the same optional bearer token.
+- A successful result is stored in memory and rendered by `/assessment/result`; a failed submission stores an error and returns `null`.
+
+Current transport constraints:
+
+- Callers must retrieve and pass the token explicitly; `apiFetch` does not read the auth store itself.
+- Cookies are not managed and `fetch` does not set a `credentials` option.
+- There is no request timeout, cancellation, retry, refresh-token handling, or status-specific error mapping.
+- Every response is parsed as JSON, so empty or non-JSON responses throw during `response.json()`.
+- Network and JSON parsing errors that are already `Error` objects are rethrown unchanged; the generic Indonesian connection message is used only for non-`Error` thrown values.
+
 Implemented endpoints:
 
 - `POST /auth/register`
@@ -79,7 +120,7 @@ Implemented endpoints:
 
 Auth responses are expected to include a user and optional session with access token, refresh token, and expiry. Assessment results include severity, anxiety values, practices, target, recommendations, AI summary, and therapy-plan metadata.
 
-All Zustand stores are memory-only: they do not use persistence middleware or secure storage. Reloading the app loses the user, tokens, assessment data, and in-progress reflection. Logout clears only in-memory auth data. Refresh tokens and expiry values are typed but unused.
+All Zustand stores are memory-only: they do not use persistence middleware or secure storage. Reloading the app loses the user, tokens, assessment data, and in-progress reflection. Logout clears only in-memory auth data. Refresh tokens and expiry values are typed but unused. The auth store sets `isAuthenticated: true` after a successful auth response even when `session` is null and therefore the stored access token is null.
 
 Assessment behavior:
 
