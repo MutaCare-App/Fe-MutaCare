@@ -90,6 +90,11 @@ export default function DashboardTabsLayout() {
             />
           ),
         }}
+        listeners={({ navigation }) => ({
+          tabPress: () => {
+            navigation.navigate("profile", { screen: "index" });
+          },
+        })}
       />
     </Tabs>
   );
