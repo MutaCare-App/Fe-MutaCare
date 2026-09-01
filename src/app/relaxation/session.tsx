@@ -4,15 +4,16 @@ import { Text } from "@/components/ui/text";
 import { iconWithClassName } from "@/lib/iconWithClassName";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
+import { CaretLeftIcon } from "phosphor-react-native/src/icons/CaretLeft";
 import { PauseIcon } from "phosphor-react-native/src/icons/Pause";
 import { PlayIcon } from "phosphor-react-native/src/icons/Play";
 import { useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-[PauseIcon, PlayIcon].forEach(iconWithClassName);
+[CaretLeftIcon, PauseIcon, PlayIcon].forEach(iconWithClassName);
 
-const INITIAL_SECONDS = 179;
+const INITIAL_SECONDS = 180;
 
 const INSTRUCTIONS = [
   "Tarik Napas Perlahan Melalui Hidung (4 Detik)",
@@ -65,6 +66,17 @@ export default function RelaxationSessionScreen() {
       <StatusBar style="light" />
       <SafeAreaView className="flex-1 p-5" edges={["top", "bottom", "left", "right"]}>
         <View className="w-full flex-1 items-center px-2">
+          <View className="h-12 w-full justify-center">
+            <Pressable
+              accessibilityLabel="Kembali"
+              className="size-9 items-start justify-center active:opacity-60"
+              hitSlop={12}
+              onPress={handleBack}
+            >
+              <CaretLeftIcon className="text-white" size={26} />
+            </Pressable>
+          </View>
+
           <SoundSelect onValueChange={setSound} value={sound} />
 
           <View
