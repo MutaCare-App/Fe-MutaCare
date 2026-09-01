@@ -47,18 +47,18 @@ export default function RelaxationSessionScreen() {
     if (!isRunning) return;
 
     const timer = setInterval(() => {
-      setSecondsRemaining((current) => {
-        if (current <= 1) {
-          setIsRunning(false);
-          setIsComplete(true);
-          return 0;
-        }
-        return current - 1;
-      });
+      setSecondsRemaining((current) => Math.max(0, current - 1));
     }, 1000);
 
     return () => clearInterval(timer);
   }, [isRunning]);
+
+  useEffect(() => {
+    if (secondsRemaining === 0 && isRunning) {
+      setIsRunning(false);
+      setIsComplete(true);
+    }
+  }, [secondsRemaining, isRunning]);
 
   return (
     <View className="flex-1 bg-primary-300">

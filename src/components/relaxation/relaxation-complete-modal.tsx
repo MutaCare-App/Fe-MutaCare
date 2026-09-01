@@ -18,7 +18,12 @@ export function RelaxationCompleteModal({
   visible,
 }: RelaxationCompleteModalProps) {
   return (
-    <Modal animationType="fade" transparent visible={visible}>
+    <Modal
+      animationType="fade"
+      onRequestClose={onBack}
+      transparent
+      visible={visible}
+    >
       <View className="flex-1 items-center justify-center bg-black/55 px-3.5">
         <View className="w-full rounded-[20px] bg-white p-5">
           <View className="flex-row items-center gap-1.5">
