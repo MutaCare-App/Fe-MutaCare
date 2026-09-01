@@ -7,7 +7,7 @@ import { Text } from "@/components/ui/text";
 import { iconWithClassName } from "@/lib/iconWithClassName";
 import { FlameIcon } from "phosphor-react-native/src/icons/Flame";
 import { TrophyIcon } from "phosphor-react-native/src/icons/Trophy";
-import React, { forwardRef } from "react";
+import React, { forwardRef, useImperativeHandle, useRef } from "react";
 import { View } from "react-native";
 
 iconWithClassName(FlameIcon);
@@ -22,15 +22,17 @@ export const StreakDetailSheet = forwardRef<
   BottomSheetModal,
   StreakDetailSheetProps
 >(({ currentStreak = 5, maxStreak = 10 }, ref) => {
+  const internalRef = useRef<BottomSheetModal>(null);
+
+  useImperativeHandle(ref, () => internalRef.current as BottomSheetModal);
+
   const handleClose = () => {
-    if (ref && "current" in ref && ref.current) {
-      ref.current.dismiss();
-    }
+    internalRef.current?.dismiss();
   };
 
   return (
     <BottomSheetModal
-      ref={ref}
+      ref={internalRef}
       snapPoints={["40%"]}
       enablePanDownToClose
     >

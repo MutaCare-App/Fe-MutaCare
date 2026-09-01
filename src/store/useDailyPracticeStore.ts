@@ -35,7 +35,7 @@ export const useDailyPracticeStore = create<DailyPracticeState>((set) => ({
       const newTasks = state.tasks.map((task) =>
         task.id === id ? { ...task, completed: !task.completed } : task
       );
-      const isFinished = newTasks.every((t) => t.completed);
+      const isFinished = newTasks.length > 0 && newTasks.every((t) => t.completed);
       return { tasks: newTasks, isFinished };
     }),
 
@@ -44,7 +44,7 @@ export const useDailyPracticeStore = create<DailyPracticeState>((set) => ({
       const newTasks = state.tasks.map((task) =>
         task.id === id ? { ...task, completed } : task
       );
-      const isFinished = newTasks.every((t) => t.completed);
+      const isFinished = newTasks.length > 0 && newTasks.every((t) => t.completed);
       return { tasks: newTasks, isFinished };
     }),
 
