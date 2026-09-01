@@ -25,7 +25,11 @@ const ANXIETY_LABELS = {
 
 export default function ProfileAssessmentScreen() {
   const result = useAssessmentStore((state) => state.result);
-  const severity = result?.mutismSeverity || "moderate";
+  const rawSeverity = String(result?.mutismSeverity || "moderate").toLowerCase();
+  const severity: keyof typeof ANXIETY_IMAGES =
+    rawSeverity in ANXIETY_IMAGES
+      ? (rawSeverity as keyof typeof ANXIETY_IMAGES)
+      : "moderate";
   const practices = result?.practices?.length
     ? result.practices
     : ["Berbicara Dengan Guru", "Berbicara Dengan Teman Baru"];
@@ -59,8 +63,8 @@ export default function ProfileAssessmentScreen() {
             title="Situasi Yang Perlu Dilatih"
           >
             <View className="flex-1 justify-center gap-1">
-              {practices.slice(0, 3).map((practice) => (
-                <Text key={practice} className="font-poppins text-[8px] leading-3 text-neutral-700">
+              {practices.slice(0, 3).map((practice, index) => (
+                <Text key={`${practice}-${index}`} className="font-poppins text-[8px] leading-3 text-neutral-700">
                   • {practice}
                 </Text>
               ))}

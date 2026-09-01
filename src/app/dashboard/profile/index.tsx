@@ -6,12 +6,13 @@ import { iconWithClassName } from "@/lib/iconWithClassName";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "expo-router";
 import { BrainIcon } from "phosphor-react-native/src/icons/Brain";
+import { CaretRightIcon } from "phosphor-react-native/src/icons/CaretRight";
 import { LockIcon } from "phosphor-react-native/src/icons/Lock";
 import { SignOutIcon } from "phosphor-react-native/src/icons/SignOut";
 import { UserCircleIcon } from "phosphor-react-native/src/icons/UserCircle";
 import { Pressable, View } from "react-native";
 
-[BrainIcon, LockIcon, SignOutIcon, UserCircleIcon].forEach(iconWithClassName);
+[BrainIcon, CaretRightIcon, LockIcon, SignOutIcon, UserCircleIcon].forEach(iconWithClassName);
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -66,7 +67,7 @@ export default function ProfileScreen() {
           <SignOutIcon className="text-red-500" size={20} />
         </View>
         <Text className="flex-1 font-poppins text-[13px] text-neutral-700">Keluar</Text>
-        <Text className="text-xl text-neutral-700">›</Text>
+        <CaretRightIcon className="text-neutral-700" size={20} />
       </Pressable>
     </ProfileShell>
   );
