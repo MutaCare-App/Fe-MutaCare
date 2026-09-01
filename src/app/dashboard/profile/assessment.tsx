@@ -37,13 +37,17 @@ export default function ProfileAssessmentScreen() {
   return (
     <ProfileShell showBack title="Hasil Asesmen Awal">
       <View className="mt-5 gap-3">
-        <View className="flex-row items-stretch gap-2.5">
+        <View className="flex-row items-stretch gap-2.5" style={{ height: 96 }}>
           <AssessmentCard
             icon={<BrainIcon className="text-primary-300" size={13} weight="fill" />}
             title="Tingkat Kecemasan"
           >
             <View className="flex-1 items-center justify-center">
-              <Image className="size-10" resizeMode="contain" source={ANXIETY_IMAGES[severity]} />
+              <Image
+                resizeMode="contain"
+                source={ANXIETY_IMAGES[severity]}
+                style={{ height: 40, width: 40 }}
+              />
               <Text className="font-poppins-semibold text-[10px] text-neutral-700">
                 {ANXIETY_LABELS[severity]}
               </Text>
@@ -64,7 +68,7 @@ export default function ProfileAssessmentScreen() {
           </AssessmentCard>
         </View>
 
-        <View className="flex-row items-stretch gap-2.5">
+        <View className="flex-row items-stretch gap-2.5" style={{ height: 96 }}>
           <AssessmentCard
             icon={<TargetIcon className="text-primary-300" size={13} weight="fill" />}
             title="Target Utama"

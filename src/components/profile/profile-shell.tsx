@@ -18,7 +18,10 @@ export function ProfileShell({ children, showBack, title }: ProfileShellProps) {
 
   return (
     <View className="flex-1 bg-white">
-      <SafeAreaView className="flex-1 p-5" edges={["top", "left", "right"]}>
+      <SafeAreaView
+        edges={["top", "left", "right"]}
+        style={{ flex: 1, padding: 20 }}
+      >
         <View className="w-full flex-1 px-2">
           <View className="h-12 flex-row items-center justify-center">
             {showBack ? (

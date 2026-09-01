@@ -9,7 +9,7 @@ interface AssessmentCardProps extends PropsWithChildren {
 
 export function AssessmentCard({ children, icon, title }: AssessmentCardProps) {
   return (
-    <View className="min-h-[96px] flex-1 rounded-sm border border-neutral-200 bg-white p-2">
+    <View className="min-h-[96px] flex-1 overflow-hidden rounded-sm border border-neutral-200 bg-white p-2">
       <View className="flex-row items-center gap-1">
         <View className="size-5 items-center justify-center rounded-full border border-primary-200 bg-white">
           {icon}
