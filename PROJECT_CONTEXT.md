@@ -69,9 +69,8 @@ The standalone Relaksasi flow is implemented under `/relaxation` with a preparat
 The API base URL is selected in this order:
 
 1. `EXPO_PUBLIC_API_URL`.
-2. The Metro host IP plus `:5000/api/v1` when available.
-3. Android fallback `http://192.168.1.7:5000/api/v1`.
-4. Other-platform fallback `http://localhost:5000/api/v1`.
+2. The Metro host IP (`Constants.expoConfig.hostUri`) plus `:5000/api/v1` dynamically.
+3. Fallback to `http://127.0.0.1:5000/api/v1`.
 
 `apiFetch` assumes every response is JSON shaped as `{ success, message, data?, error? }`. It adds `Content-Type: application/json`, optionally adds `Authorization: Bearer <token>`, and throws when HTTP status or envelope success is false.
 

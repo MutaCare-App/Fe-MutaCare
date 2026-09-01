@@ -12,7 +12,7 @@ export function ResultHeader({
 }: ResultHeaderProps) {
   return (
     <View className="items-center w-full ">
-      <View className="items-center justify-center my-8">
+      <View className="items-center justify-center mb-8 mt-2">
         <Image
           source={require("../../../assets/images/success-assessment.png")}
           className="w-70 h-70"

@@ -1,5 +1,4 @@
 import Constants from 'expo-constants';
-import { Platform } from 'react-native';
 
 const getBaseUrl = (): string => {
   if (process.env.EXPO_PUBLIC_API_URL) {
@@ -10,17 +9,12 @@ const getBaseUrl = (): string => {
   const hostUri = Constants.expoConfig?.hostUri;
   if (hostUri) {
     const ip = hostUri.split(':')[0];
-    if (ip && ip !== 'localhost' && ip !== '127.0.0.1') {
+    if (ip) {
       return `http://${ip}:5000/api/v1`;
     }
   }
 
-  // Fallback to local Wi-Fi IP or localhost
-  if (Platform.OS === 'android') {
-    return 'http://192.168.1.7:5000/api/v1';
-  }
-
-  return 'http://localhost:5000/api/v1';
+  return 'http://127.0.0.1:5000/api/v1';
 };
 
 export const API_BASE_URL = getBaseUrl();
