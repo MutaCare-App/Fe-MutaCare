@@ -18,6 +18,8 @@ export interface AuthUserData {
   fullName: string;
   nickname?: string | null;
   avatarUrl?: string | null;
+  phone?: string | null;
+  gender?: string | null;
 }
 
 export interface AuthSessionData {
