@@ -23,7 +23,7 @@ export const StreakDetailSheet = forwardRef<
   StreakDetailSheetProps
 >(({ currentStreak = 5, maxStreak = 10 }, ref) => {
   const handleClose = () => {
-    if (ref && typeof ref === "object" && ref.current) {
+    if (ref && "current" in ref && ref.current) {
       ref.current.dismiss();
     }
   };

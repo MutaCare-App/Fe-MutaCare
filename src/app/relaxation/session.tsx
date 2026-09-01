@@ -41,7 +41,7 @@ export default function RelaxationSessionScreen() {
       return;
     }
 
-    router.replace("/relaxation/index");
+    router.replace("/relaxation");
   };
 
   useEffect(() => {
