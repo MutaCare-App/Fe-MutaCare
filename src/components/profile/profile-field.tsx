@@ -22,28 +22,32 @@ export function ProfileField({
   ...props
 }: ProfileFieldProps) {
   return (
-    <View className="gap-1">
-      <Text className="font-poppins-semibold text-xs text-neutral-700">{label}</Text>
-      <View>
+    <View className="gap-1.5 w-full">
+      <Text className="font-poppins-semibold text-base text-neutral-700">
+        {label}
+      </Text>
+      <View className="relative justify-center">
         <Input
           className={cn(
-            "h-10 border-secondary-300 bg-neutral-50 px-2.5 py-0 text-[13px] sm:h-10",
-            onToggleVisibility && "pr-10",
+            "h-14 border-secondary-300 bg-white px-4 text-base font-poppins sm:h-14",
+            onToggleVisibility && "pr-14",
           )}
-          placeholderTextColor="#D4D4D4"
+          placeholderTextColor="#A3A3A3"
           {...props}
         />
         {onToggleVisibility ? (
           <Pressable
-            accessibilityLabel={showValue ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
-            className="absolute right-1 top-0 size-10 items-center justify-center"
-            hitSlop={4}
+            accessibilityLabel={
+              showValue ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"
+            }
+            className="absolute right-3.5 top-0 bottom-0 justify-center items-center z-10 p-1"
+            hitSlop={8}
             onPress={onToggleVisibility}
           >
             {showValue ? (
-              <EyeIcon className="text-neutral-300" size={20} />
+              <EyeSlashIcon className="text-neutral-700" size={24} />
             ) : (
-              <EyeSlashIcon className="text-neutral-300" size={20} />
+              <EyeIcon className="text-neutral-300" size={24} />
             )}
           </Pressable>
         ) : null}

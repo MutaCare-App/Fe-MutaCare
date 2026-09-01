@@ -5,14 +5,14 @@ import { Text } from "@/components/ui/text";
 import { iconWithClassName } from "@/lib/iconWithClassName";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "expo-router";
+import { LockKeyIcon } from "phosphor-react-native/src/icons/LockKey";
 import { BrainIcon } from "phosphor-react-native/src/icons/Brain";
 import { CaretRightIcon } from "phosphor-react-native/src/icons/CaretRight";
-import { LockIcon } from "phosphor-react-native/src/icons/Lock";
 import { SignOutIcon } from "phosphor-react-native/src/icons/SignOut";
-import { UserCircleIcon } from "phosphor-react-native/src/icons/UserCircle";
+import { UserGearIcon  } from "phosphor-react-native/src/icons/UserGear";
 import { Pressable, View } from "react-native";
 
-[BrainIcon, CaretRightIcon, LockIcon, SignOutIcon, UserCircleIcon].forEach(iconWithClassName);
+[BrainIcon, CaretRightIcon, LockKeyIcon, SignOutIcon, UserGearIcon].forEach(iconWithClassName);
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -28,25 +28,25 @@ export default function ProfileScreen() {
 
   return (
     <ProfileShell title="Profil">
-      <View className="mt-7 flex-row items-center gap-5">
+      <View className="mt-7 flex-row items-center justify-center gap-5">
         <ProfileAvatar avatarUrl={user?.avatarUrl} name={name} />
         <View className="min-w-0 flex-1">
-          <Text className="font-feather-bold text-[21px] leading-6 text-neutral-700">
+          <Text className="font-poppins-semibold text-xl leading-6 text-neutral-700">
             {name}
           </Text>
-          <Text className="font-poppins text-xs text-neutral-700">{email}</Text>
+          <Text className="font-poppins text-sm text-neutral-700">{email}</Text>
         </View>
       </View>
 
       <View className="mt-8">
         <Text className="mb-1 font-poppins-semibold text-[15px] text-neutral-700">Akun</Text>
         <ProfileMenuRow
-          icon={<UserCircleIcon className="text-secondary-300" size={20} />}
+          icon={<UserGearIcon className="text-secondary-300" size={20} />}
           label="Ubah Profil"
           onPress={() => router.push("/dashboard/profile/edit")}
         />
         <ProfileMenuRow
-          icon={<LockIcon className="text-secondary-300" size={20} />}
+          icon={<LockKeyIcon  className="text-secondary-300" size={20} />}
           label="Ubah Kata Sandi"
           onPress={() => router.push("/dashboard/profile/password")}
         />

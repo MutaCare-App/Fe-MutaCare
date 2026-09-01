@@ -10,6 +10,7 @@ interface AuthState {
 
   registerUser: (payload: RegisterPayload) => Promise<boolean>;
   loginUser: (payload: LoginPayload) => Promise<boolean>;
+  updateAvatar: (avatarUrl: string) => void;
   logout: () => void;
   clearError: () => void;
 }
@@ -58,6 +59,13 @@ export const useAuthStore = create<AuthState>((set) => ({
       return false;
     }
   },
+
+  updateAvatar: (avatarUrl: string) =>
+    set((state) => ({
+      user: state.user
+        ? { ...state.user, avatarUrl }
+        : { id: "temp", email: "", fullName: "User", avatarUrl },
+    })),
 
   logout: () => {
     set({

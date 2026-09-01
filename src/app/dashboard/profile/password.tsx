@@ -62,10 +62,10 @@ export default function ChangePasswordScreen() {
       </View>
 
       <Button
-        className="mb-3 mt-auto h-12 w-full rounded-lg bg-primary-300 active:bg-primary-400"
+        className="mb-3 mt-auto h-16 w-full rounded-lg bg-primary-300 active:bg-primary-400 justify-center items-center"
         onPress={handleSave}
       >
-        <Text className="font-poppins-semibold text-base text-white">Simpan Perubahan</Text>
+        <Text className="font-poppins-semibold text-lg text-white">Simpan Perubahan</Text>
       </Button>
     </ProfileShell>
   );
