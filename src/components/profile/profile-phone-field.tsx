@@ -5,18 +5,21 @@ import { TextInput, TextInputProps, View } from "react-native";
 interface ProfilePhoneFieldProps
   extends Omit<TextInputProps, "onChangeText" | "value"> {
   label?: string;
-  value: string;
+  value?: string | null;
   onChangeText: (formattedValue: string, rawNumber: string) => void;
 }
 
 /**
  * Helper to format Indonesian phone number:
- * 1. Removes non-digits.
- * 2. Removes leading country code 62 if followed by more digits.
- * 3. Removes leading zero (e.g. "0812" -> "812").
- * 4. Formats into readable blocks: "812 3456 7890".
+ * 1. Safely handles null/undefined input.
+ * 2. Removes non-digits.
+ * 3. Removes leading country code 62 if followed by more digits.
+ * 4. Removes leading zero (e.g. "0812" -> "812").
+ * 5. Formats into readable blocks: "812 3456 7890".
  */
-export function formatPhoneNumber(input: string): string {
+export function formatPhoneNumber(input?: string | null): string {
+  if (!input) return "";
+
   // Hanya ambil digit
   let digits = input.replace(/\D/g, "");
 

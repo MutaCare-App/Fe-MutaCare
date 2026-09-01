@@ -144,6 +144,7 @@ function SelectLabel({
 function SelectItem({
   className,
   children,
+  label,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Item>) {
   return (
@@ -153,6 +154,7 @@ function SelectItem({
         props.disabled && "opacity-50",
         className
       )}
+      label={typeof children === "string" ? children : label}
       {...props}
     >
       <SelectPrimitive.ItemText className="font-poppins text-neutral-700 text-base flex-1" />

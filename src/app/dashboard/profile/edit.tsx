@@ -16,8 +16,8 @@ export default function EditProfileScreen() {
   const name = user?.fullName || "Lee Chaeryeong";
   const [email, setEmail] = useState(user?.email || "Chaery@Gmail.Com");
   const [fullName, setFullName] = useState(name);
-  const [phone, setPhone] = useState("");
-  const [gender, setGender] = useState("");
+  const [phone, setPhone] = useState(user?.phone || "");
+  const [gender, setGender] = useState(user?.gender || "");
 
   return (
     <ProfileShell showBack title="Ubah Profil">
