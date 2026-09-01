@@ -60,14 +60,14 @@ export function ProfileSelect({
       >
         <View className="flex-1 justify-end">
           <Pressable
-            accessibilityLabel="Tutup pilihan jenis kelamin"
+            accessibilityLabel={`Tutup pilihan ${label.toLowerCase()}`}
             className="absolute inset-0 bg-black/30"
             onPress={() => setIsOpen(false)}
           />
           <View className="rounded-t-3xl bg-white px-5 pb-8 pt-5">
             <View className="mb-4 h-1 w-10 self-center rounded-full bg-neutral-300" />
             <Text className="mb-3 font-poppins-semibold text-base text-neutral-700">
-              Pilih Jenis Kelamin
+              Pilih {label}
             </Text>
             {options.map((option) => {
               const isSelected = value === option;

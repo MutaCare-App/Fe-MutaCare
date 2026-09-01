@@ -1,6 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { iconWithClassName } from "@/lib/iconWithClassName";
+import { cn } from "@/lib/utils";
 import { EyeIcon } from "phosphor-react-native/src/icons/Eye";
 import { EyeSlashIcon } from "phosphor-react-native/src/icons/EyeSlash";
 import { Pressable, TextInputProps, View } from "react-native";
@@ -25,7 +26,10 @@ export function ProfileField({
       <Text className="font-poppins-semibold text-xs text-neutral-700">{label}</Text>
       <View>
         <Input
-          className="h-10 border-secondary-300 bg-neutral-50 px-2.5 py-0 text-[13px] sm:h-10"
+          className={cn(
+            "h-10 border-secondary-300 bg-neutral-50 px-2.5 py-0 text-[13px] sm:h-10",
+            onToggleVisibility && "pr-10",
+          )}
           placeholderTextColor="#D4D4D4"
           {...props}
         />
