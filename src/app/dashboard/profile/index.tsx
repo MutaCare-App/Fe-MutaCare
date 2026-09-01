@@ -1,6 +1,7 @@
 import { ProfileAvatar } from "@/components/profile/profile-avatar";
 import { ProfileMenuRow } from "@/components/profile/profile-menu-row";
 import { ProfileShell } from "@/components/profile/profile-shell";
+import { ProfileSignoutDialog } from "@/components/profile/profile-signout-dialog";
 import { Text } from "@/components/ui/text";
 import { iconWithClassName } from "@/lib/iconWithClassName";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -9,8 +10,8 @@ import { LockKeyIcon } from "phosphor-react-native/src/icons/LockKey";
 import { BrainIcon } from "phosphor-react-native/src/icons/Brain";
 import { CaretRightIcon } from "phosphor-react-native/src/icons/CaretRight";
 import { SignOutIcon } from "phosphor-react-native/src/icons/SignOut";
-import { UserGearIcon  } from "phosphor-react-native/src/icons/UserGear";
-import { Pressable, View } from "react-native";
+import { UserGearIcon } from "phosphor-react-native/src/icons/UserGear";
+import { View } from "react-native";
 
 [BrainIcon, CaretRightIcon, LockKeyIcon, SignOutIcon, UserGearIcon].forEach(iconWithClassName);
 
@@ -46,7 +47,7 @@ export default function ProfileScreen() {
           onPress={() => router.push("/dashboard/profile/edit")}
         />
         <ProfileMenuRow
-          icon={<LockKeyIcon  className="text-secondary-300" size={20} />}
+          icon={<LockKeyIcon className="text-secondary-300" size={20} />}
           label="Ubah Kata Sandi"
           onPress={() => router.push("/dashboard/profile/password")}
         />
@@ -59,16 +60,8 @@ export default function ProfileScreen() {
         />
       </View>
 
-      <Pressable
-        className="mt-auto h-12 flex-row items-center active:opacity-60"
-        onPress={handleLogout}
-      >
-        <View className="w-8 items-start">
-          <SignOutIcon className="text-red-500" size={20} />
-        </View>
-        <Text className="flex-1 font-poppins text-[13px] text-neutral-700">Keluar</Text>
-        <CaretRightIcon className="text-neutral-700" size={20} />
-      </Pressable>
+      {/* Micro-component Tombol Keluar dengan Dialog Konfirmasi */}
+      <ProfileSignoutDialog onConfirmLogout={handleLogout} />
     </ProfileShell>
   );
 }

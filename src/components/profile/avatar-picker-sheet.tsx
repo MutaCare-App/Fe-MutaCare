@@ -45,8 +45,8 @@ export const AvatarPickerSheet = forwardRef<
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
         onSelectImage(result.assets[0].uri);
-        internalRef.current?.dismiss();
       }
+      internalRef.current?.dismiss();
     } catch (error) {
       Alert.alert("Gagal", "Terjadi kesalahan saat membuka kamera.");
     }
@@ -73,8 +73,8 @@ export const AvatarPickerSheet = forwardRef<
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
         onSelectImage(result.assets[0].uri);
-        internalRef.current?.dismiss();
       }
+      internalRef.current?.dismiss();
     } catch (error) {
       Alert.alert("Gagal", "Terjadi kesalahan saat membuka galeri.");
     }

@@ -21,13 +21,12 @@ const Select = SelectPrimitive.Root;
 
 const SelectGroup = SelectPrimitive.Group;
 
-function SelectValue({
-  ref,
-  className,
-  ...props
-}: React.ComponentProps<typeof SelectPrimitive.Value> & {
-  className?: string;
-}) {
+const SelectValue = React.forwardRef<
+  React.ElementRef<typeof SelectPrimitive.Value>,
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Value> & {
+    className?: string;
+  }
+>(({ className, ...props }, ref) => {
   const { value } = SelectPrimitive.useRootContext();
   return (
     <SelectPrimitive.Value
@@ -40,16 +39,15 @@ function SelectValue({
       {...props}
     />
   );
-}
+});
+SelectValue.displayName = SelectPrimitive.Value.displayName;
 
-function SelectTrigger({
-  ref,
-  className,
-  children,
-  ...props
-}: React.ComponentProps<typeof SelectPrimitive.Trigger> & {
-  children?: React.ReactNode;
-}) {
+const SelectTrigger = React.forwardRef<
+  React.ElementRef<typeof SelectPrimitive.Trigger>,
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> & {
+    children?: React.ReactNode;
+  }
+>(({ className, children, ...props }, ref) => {
   return (
     <SelectPrimitive.Trigger
       ref={ref}
@@ -64,7 +62,8 @@ function SelectTrigger({
       <CaretDownIcon size={22} className="text-neutral-700" />
     </SelectPrimitive.Trigger>
   );
-}
+});
+SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
 
 const FullWindowOverlay =
   Platform.OS === "ios" ? RNFullWindowOverlay : React.Fragment;

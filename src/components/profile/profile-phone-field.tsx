@@ -12,15 +12,16 @@ interface ProfilePhoneFieldProps
 /**
  * Helper to format Indonesian phone number:
  * 1. Removes non-digits.
- * 2. Removes leading zero (e.g. "0812" -> "812").
- * 3. Formats into readable blocks: "812 3456 7890".
+ * 2. Removes leading country code 62 if followed by more digits.
+ * 3. Removes leading zero (e.g. "0812" -> "812").
+ * 4. Formats into readable blocks: "812 3456 7890".
  */
 export function formatPhoneNumber(input: string): string {
   // Hanya ambil digit
   let digits = input.replace(/\D/g, "");
 
-  // Buang awalan 62 jika user memasukkannya
-  if (digits.startsWith("62")) {
+  // Buang awalan 62 jika user memasukkannya (hanya jika ada digit lanjutan)
+  if (digits.startsWith("62") && digits.length > 2) {
     digits = digits.slice(2);
   }
 
@@ -80,7 +81,7 @@ export function ProfilePhoneField({
           keyboardType="phone-pad"
           placeholder="812 3456 7890"
           placeholderTextColor="#A3A3A3"
-          value={value}
+          value={formatPhoneNumber(value)}
           onChangeText={handleChangeText}
           maxLength={16} // Termasuk spasi
           {...props}

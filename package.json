@@ -5,6 +5,7 @@
   "dependencies": {
     "@expo/ui": "~57.0.9",
     "@gorhom/bottom-sheet": "^5.2.14",
+    "@rn-primitives/alert-dialog": "^1.5.2",
     "@rn-primitives/avatar": "^1.5.2",
     "@rn-primitives/checkbox": "^1.5.2",
     "@rn-primitives/hooks": "^1.5.2",
