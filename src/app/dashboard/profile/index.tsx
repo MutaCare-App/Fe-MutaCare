@@ -11,7 +11,7 @@ import { BrainIcon } from "phosphor-react-native/src/icons/Brain";
 import { CaretRightIcon } from "phosphor-react-native/src/icons/CaretRight";
 import { SignOutIcon } from "phosphor-react-native/src/icons/SignOut";
 import { UserGearIcon } from "phosphor-react-native/src/icons/UserGear";
-import { View } from "react-native";
+import { ActivityIndicator, Pressable, View } from "react-native";
 
 [BrainIcon, CaretRightIcon, LockKeyIcon, SignOutIcon, UserGearIcon].forEach(iconWithClassName);
 
@@ -19,8 +19,11 @@ export default function ProfileScreen() {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
-  const name = user?.fullName || "Lee Chaeryeong";
-  const email = user?.email || "Chaery@Gmail.Com";
+  const fetchProfile = useAuthStore((state) => state.fetchProfile);
+  const isProfileLoading = useAuthStore((state) => state.isProfileLoading);
+  const profileError = useAuthStore((state) => state.profileError);
+  const name = user?.fullName || "Pengguna";
+  const email = user?.email || "Email tidak tersedia";
 
   const handleLogout = () => {
     logout();
@@ -30,7 +33,11 @@ export default function ProfileScreen() {
   return (
     <ProfileShell title="Profil">
       <View className="mt-7 flex-row items-center justify-center gap-5">
-        <ProfileAvatar avatarUrl={user?.avatarUrl} name={name} />
+        <ProfileAvatar
+          avatarUrl={user?.avatarUrl}
+          name={name}
+          onEdit={() => router.push("/dashboard/profile/edit")}
+        />
         <View className="min-w-0 flex-1">
           <Text className="font-poppins-semibold text-xl leading-6 text-neutral-700">
             {name}
@@ -38,6 +45,24 @@ export default function ProfileScreen() {
           <Text className="font-poppins text-sm text-neutral-700">{email}</Text>
         </View>
       </View>
+
+      {isProfileLoading ? (
+        <View className="mt-4 flex-row items-center justify-center gap-2">
+          <ActivityIndicator color="#609966" size="small" />
+          <Text className="font-poppins text-xs text-neutral-500">Memuat profil...</Text>
+        </View>
+      ) : null}
+
+      {profileError ? (
+        <View className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3">
+          <Text className="text-center font-poppins text-xs text-red-600">{profileError}</Text>
+          <Pressable className="mt-2 active:opacity-60" onPress={() => void fetchProfile()}>
+            <Text className="text-center font-poppins-semibold text-xs text-primary-300">
+              Coba Lagi
+            </Text>
+          </Pressable>
+        </View>
+      ) : null}
 
       <View className="mt-8">
         <Text className="mb-1 font-poppins-semibold text-[15px] text-neutral-700">Akun</Text>

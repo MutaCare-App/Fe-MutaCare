@@ -2,7 +2,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BottomSheetModal } from "@/components/ui/bottom-sheet";
 import { Text } from "@/components/ui/text";
 import { iconWithClassName } from "@/lib/iconWithClassName";
-import { useAuthStore } from "@/store/useAuthStore";
 import { CameraIcon } from "phosphor-react-native/src/icons/Camera";
 import React, { useRef } from "react";
 import { ImageSourcePropType, Pressable, View } from "react-native";
@@ -17,6 +16,7 @@ interface ProfileAvatarProps {
   name: string;
   size?: "large" | "medium";
   editable?: boolean;
+  onEdit?: () => void;
   onSelectImage?: (uri: string) => void;
 }
 
@@ -25,9 +25,9 @@ export function ProfileAvatar({
   name,
   size = "large",
   editable = true,
+  onEdit,
   onSelectImage,
 }: ProfileAvatarProps) {
-  const updateAvatar = useAuthStore((state) => state.updateAvatar);
   const pickerSheetRef = useRef<BottomSheetModal>(null);
 
   const imageSource = avatarUrl
@@ -40,11 +40,14 @@ export function ProfileAvatar({
 
   const handleOpenPicker = () => {
     if (!editable) return;
+    if (onEdit) {
+      onEdit();
+      return;
+    }
     pickerSheetRef.current?.present();
   };
 
   const handleImageSelected = (uri: string) => {
-    updateAvatar(uri);
     onSelectImage?.(uri);
   };
 
@@ -78,12 +81,12 @@ export function ProfileAvatar({
         )}
       </View>
 
-      {editable && (
+      {editable && onSelectImage ? (
         <AvatarPickerSheet
           ref={pickerSheetRef}
           onSelectImage={handleImageSelected}
         />
-      )}
+      ) : null}
     </>
   );
 }

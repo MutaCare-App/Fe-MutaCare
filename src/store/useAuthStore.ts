@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { AuthService, AuthUserData, LoginPayload, RegisterPayload } from '@/services/authService';
+import { UpdateUserProfilePayload, UserService } from '@/services/userService';
 
 interface AuthState {
   user: AuthUserData | null;
@@ -7,20 +8,28 @@ interface AuthState {
   isLoading: boolean;
   error: string | null;
   isAuthenticated: boolean;
+  isProfileLoading: boolean;
+  isProfileUpdating: boolean;
+  profileError: string | null;
 
   registerUser: (payload: RegisterPayload) => Promise<boolean>;
   loginUser: (payload: LoginPayload) => Promise<boolean>;
-  updateAvatar: (avatarUrl: string) => void;
+  fetchProfile: () => Promise<boolean>;
+  updateProfile: (payload: UpdateUserProfilePayload) => Promise<boolean>;
   logout: () => void;
   clearError: () => void;
+  clearProfileError: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   token: null,
   isLoading: false,
   error: null,
   isAuthenticated: false,
+  isProfileLoading: false,
+  isProfileUpdating: false,
+  profileError: null,
 
   registerUser: async (payload: RegisterPayload): Promise<boolean> => {
     set({ isLoading: true, error: null });
@@ -32,6 +41,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         isAuthenticated: true,
         isLoading: false,
         error: null,
+        profileError: null,
       });
       return true;
     } catch (err: unknown) {
@@ -51,6 +61,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         isAuthenticated: true,
         isLoading: false,
         error: null,
+        profileError: null,
       });
       return true;
     } catch (err: unknown) {
@@ -60,12 +71,61 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
-  updateAvatar: (avatarUrl: string) =>
-    set((state) => ({
-      user: state.user
-        ? { ...state.user, avatarUrl }
-        : { id: "temp", email: "", fullName: "User", avatarUrl },
-    })),
+  fetchProfile: async (): Promise<boolean> => {
+    const token = get().token;
+    if (!token) {
+      set({ profileError: 'Sesi login tidak ditemukan.' });
+      return false;
+    }
+
+    set({ isProfileLoading: true, profileError: null });
+    try {
+      const profile = await UserService.getProfile(token);
+      if (get().token !== token) {
+        return false;
+      }
+      set((state) => ({
+        user: state.user
+          ? { ...state.user, ...profile }
+          : { ...profile, email: '' },
+        isProfileLoading: false,
+        profileError: null,
+      }));
+      return true;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal memuat profil.';
+      set({ isProfileLoading: false, profileError: message });
+      return false;
+    }
+  },
+
+  updateProfile: async (payload: UpdateUserProfilePayload): Promise<boolean> => {
+    const token = get().token;
+    if (!token) {
+      set({ profileError: 'Sesi login tidak ditemukan.' });
+      return false;
+    }
+
+    set({ isProfileUpdating: true, profileError: null });
+    try {
+      const updatedProfile = await UserService.updateProfile(payload, token);
+      if (get().token !== token) {
+        return false;
+      }
+      set((state) => ({
+        user: state.user
+          ? { ...state.user, ...payload, ...updatedProfile }
+          : state.user,
+        isProfileUpdating: false,
+        profileError: null,
+      }));
+      return true;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal memperbarui profil.';
+      set({ isProfileUpdating: false, profileError: message });
+      return false;
+    }
+  },
 
   logout: () => {
     set({
@@ -73,8 +133,12 @@ export const useAuthStore = create<AuthState>((set) => ({
       token: null,
       isAuthenticated: false,
       error: null,
+      isProfileLoading: false,
+      isProfileUpdating: false,
+      profileError: null,
     });
   },
 
   clearError: () => set({ error: null }),
+  clearProfileError: () => set({ profileError: null }),
 }));

@@ -16,6 +16,8 @@ interface ProfileFieldProps extends TextInputProps {
 }
 
 export function ProfileField({
+  className,
+  editable = true,
   label,
   onToggleVisibility,
   showValue,
@@ -31,7 +33,10 @@ export function ProfileField({
           className={cn(
             "h-14 border-secondary-300 bg-white px-4 text-base font-poppins sm:h-14",
             onToggleVisibility && "pr-14",
+            !editable && "bg-neutral-100 text-neutral-500",
+            className,
           )}
+          editable={editable}
           placeholderTextColor="#A3A3A3"
           {...props}
         />
