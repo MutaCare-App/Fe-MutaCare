@@ -7,7 +7,7 @@ import { Text } from "@/components/ui/text";
 import { UpdateUserProfilePayload } from "@/services/userService";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 
 function isValidDate(value: string) {
@@ -37,13 +37,6 @@ export default function EditProfileScreen() {
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || "");
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  useEffect(() => {
-    setNickname(user?.nickname || "");
-    setGender(user?.gender || "");
-    setDateOfBirth(user?.dateOfBirth || "");
-    setAvatarUrl(user?.avatarUrl || "");
-  }, [user]);
-
   const handleSave = async () => {
     const normalizedNickname = nickname.trim();
     const normalizedDateOfBirth = dateOfBirth.trim();
@@ -57,13 +50,13 @@ export default function EditProfileScreen() {
     }
 
     const payload: UpdateUserProfilePayload = {};
-    if (normalizedNickname && normalizedNickname !== (user?.nickname || "")) {
+    if (normalizedNickname !== (user?.nickname || "")) {
       payload.nickname = normalizedNickname;
     }
     if (gender && gender !== (user?.gender || "")) {
       payload.gender = gender;
     }
-    if (normalizedDateOfBirth && normalizedDateOfBirth !== (user?.dateOfBirth || "")) {
+    if (normalizedDateOfBirth !== (user?.dateOfBirth || "")) {
       payload.dateOfBirth = normalizedDateOfBirth;
     }
     if (avatarUrl && avatarUrl !== (user?.avatarUrl || "")) {

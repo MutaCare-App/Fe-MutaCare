@@ -33,7 +33,7 @@ export class UserService {
   public static async updateProfile(
     payload: UpdateUserProfilePayload,
     token: string,
-  ): Promise<UserProfileData | null> {
+  ): Promise<UserProfileData> {
     const res = await apiFetch<UserProfileData>(
       '/users/me',
       {
@@ -43,6 +43,10 @@ export class UserService {
       token,
     );
 
-    return res.data ?? null;
+    if (!res.data) {
+      throw new Error(res.message || 'Gagal memperbarui profil');
+    }
+
+    return res.data;
   }
 }
