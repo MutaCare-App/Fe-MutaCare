@@ -20,6 +20,10 @@ export interface AuthUserData {
   avatarUrl?: string | null;
   phone?: string | null;
   gender?: string | null;
+  dateOfBirth?: string | null;
+  currentStreak?: number;
+  longestStreak?: number;
+  hasCompletedAssessment?: boolean;
 }
 
 export interface AuthSessionData {

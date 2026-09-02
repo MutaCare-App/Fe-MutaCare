@@ -1,7 +1,7 @@
 # MutaCare Project Context
 
-Last explored: 2026-09-01
-Baseline commit: `bb17c63` (`main`)
+Last explored: 2026-09-02
+Baseline commit: `0ce0452` (`main`)
 Purpose: durable orientation for future contributors and coding-agent sessions. Verify this document against the code when the baseline commit has changed.
 
 ## Product
@@ -56,9 +56,9 @@ The dashboard is a four-tab layout:
 - `progress`: placeholder.
 - `profile`: a nested four-screen account flow with the profile menu, editable account form, password form, and initial-assessment summary.
 
-The Profile edit and password forms currently manage values and validation locally because the backend exposes no profile-update or password-change endpoint. The assessment summary reads the latest in-memory assessment result and falls back to the reference content when no result is available.
+The Profile screens load the authenticated user from `GET /users/me`. The edit form updates nickname, gender, date of birth, and avatar URL through `PATCH /users/me`; full name is read-only because that endpoint does not permit changing it. The password form remains local because no password-change endpoint is available. The assessment summary reads the latest in-memory assessment result and falls back to the reference content when no result is available.
 
-The dashboard header currently uses a hard-coded name, remote Unsplash avatar, and static streak. Mood selection is component-local and is not saved or sent to an API. The daily-practice card is static.
+The dashboard header reads the user's nickname, avatar, and streak totals from the authenticated profile. Its seven daily streak indicators are still static. Mood selection is component-local and is not saved or sent to an API. The daily-practice card is static.
 
 The standalone Refleksi flow is implemented under `/reflection` as five screens matching the Figma sequence: introduction, mood selection, achievement selection, a free-form note, and completion. `src/components/reflection/` contains its shared shell and check-row presentation, while `src/store/useReflectionStore.ts` holds the selected mood, achievements, and note in memory. The completion CTA clears that temporary state and returns to `/dashboard/journey`. There is not yet an entry point into this flow from the dashboard.
 
@@ -115,6 +115,8 @@ Implemented endpoints:
 
 - `POST /auth/register`
 - `POST /auth/login`
+- `GET /users/me`
+- `PATCH /users/me` with optional `nickname`, `gender`, `dateOfBirth`, and `avatarUrl`
 - `GET /assessments/questions`
 - `POST /assessments` with `{ answersPayload: Record<number, string[]> }`
 

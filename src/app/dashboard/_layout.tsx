@@ -1,9 +1,11 @@
 import { iconWithClassName } from "@/lib/iconWithClassName";
+import { useAuthStore } from "@/store/useAuthStore";
 import { Tabs } from "expo-router";
 import { ChartBarIcon } from "phosphor-react-native/src/icons/ChartBar";
 import { HouseIcon } from "phosphor-react-native/src/icons/House";
 import { SignpostIcon } from "phosphor-react-native/src/icons/Signpost";
 import { UserIcon } from "phosphor-react-native/src/icons/User";
+import { useEffect } from "react";
 import { Platform } from "react-native";
 
 iconWithClassName(HouseIcon);
@@ -12,6 +14,15 @@ iconWithClassName(ChartBarIcon);
 iconWithClassName(UserIcon);
 
 export default function DashboardTabsLayout() {
+  const token = useAuthStore((state) => state.token);
+  const fetchProfile = useAuthStore((state) => state.fetchProfile);
+
+  useEffect(() => {
+    if (token) {
+      void fetchProfile();
+    }
+  }, [fetchProfile, token]);
+
   return (
     <Tabs
       screenOptions={{
