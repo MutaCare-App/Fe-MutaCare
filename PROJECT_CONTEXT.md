@@ -52,7 +52,7 @@ Before writing code, follow `AGENTS.md` and read the exact Expo 57 documentation
 The dashboard is a four-tab layout:
 
 - `index`: implemented static home with header/streak, mood picker, and daily-practice empty state.
-- `journey`: placeholder.
+- `journey`: an interactive five-day therapy timeline with completed, current, and locked states; day detail sheets describe the relaxation/CBT/reflection sequence.
 - `progress`: placeholder.
 - `profile`: a nested four-screen account flow with the profile menu, editable account form, password form, and initial-assessment summary.
 
@@ -63,6 +63,8 @@ The dashboard header reads the user's nickname, avatar, and streak totals from t
 The standalone Refleksi flow is implemented under `/reflection` as five screens matching the Figma sequence: introduction, mood selection, achievement selection, a free-form note, and completion. `src/components/reflection/` contains its shared shell and check-row presentation, while `src/store/useReflectionStore.ts` holds the selected mood, achievements, and note in memory. The completion CTA clears that temporary state and returns to `/dashboard/journey`. There is not yet an entry point into this flow from the dashboard.
 
 The standalone Relaksasi flow is implemented under `/relaxation` with a preparation screen and a local three-minute breathing session. The session includes a selectable ambient-sound label, pause/resume countdown, breathing instructions, and completion modal; continuing returns to `/dashboard/journey`. The sound selector is currently visual only because no ambient-audio assets or playback integration are present.
+
+The Journey screen currently uses local reference data for Week 1 at 86% completion. Completed days open a success sheet, the current day opens its task sequence, locked days explain their prerequisite, and the progress row exposes the week-complete dialog. Starting the current day's sequence enters the existing relaxation flow. Journey progress is not yet backed by an API or persisted state.
 
 ## State and backend contract
 
