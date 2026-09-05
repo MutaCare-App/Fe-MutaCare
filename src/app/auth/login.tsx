@@ -51,7 +51,13 @@ export default function Login() {
     const success = await loginUser(parseResult.data);
 
     if (success) {
-      router.replace("/assessment");
+      const user = useAuthStore.getState().user;
+      // If user has already completed the initial assessment, redirect straight to dashboard
+      if (user?.hasCompletedAssessment) {
+        router.replace("/dashboard");
+      } else {
+        router.replace("/assessment");
+      }
     }
   };
 

@@ -21,6 +21,8 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "expo": "~57.0.11",
+    "expo-audio": "~57.0.4",
+    "expo-av": "^16.0.8",
     "expo-constants": "~57.0.9",
     "expo-device": "~57.0.1",
     "expo-font": "~57.0.1",

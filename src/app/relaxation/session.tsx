@@ -2,6 +2,9 @@ import { RelaxationCompleteModal } from "@/components/relaxation/relaxation-comp
 import { SoundSelect } from "@/components/relaxation/sound-select";
 import { Text } from "@/components/ui/text";
 import { iconWithClassName } from "@/lib/iconWithClassName";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useJourneyStore } from "@/store/useJourneyStore";
+import { setAudioModeAsync, useAudioPlayer } from "expo-audio";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { CaretLeftIcon } from "phosphor-react-native/src/icons/CaretLeft";
@@ -14,6 +17,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 [CaretLeftIcon, PauseIcon, PlayIcon].forEach(iconWithClassName);
 
 const INITIAL_SECONDS = 180;
+
+const SOUND_FILES: Record<string, any> = {
+  Hujan: require("../../../assets/audio/rain.mp3"),
+  Ombak: require("../../../assets/audio/waves.mp3"),
+  "Suara Hutan": require("../../../assets/audio/forest.mp3"),
+};
 
 const INSTRUCTIONS = [
   "Tarik Napas Perlahan Melalui Hidung (4 Detik)",
@@ -30,12 +39,74 @@ function formatTime(totalSeconds: number) {
 
 export default function RelaxationSessionScreen() {
   const router = useRouter();
+  const token = useAuthStore((state) => state.token);
+  const selectedDayData = useJourneyStore((state) => state.selectedDayData);
+  const completeMission = useJourneyStore((state) => state.completeMission);
+
   const [secondsRemaining, setSecondsRemaining] = useState(INITIAL_SECONDS);
   const [isRunning, setIsRunning] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [sound, setSound] = useState("Hujan");
 
+  // Create native audio player using expo-audio
+  const player = useAudioPlayer(SOUND_FILES[sound]);
+
+  // Configure Audio mode on mount
+  useEffect(() => {
+    try {
+      void setAudioModeAsync({
+        playsInSilentMode: true,
+        shouldPlayInBackground: true,
+      });
+    } catch (e) {
+      console.warn("Audio mode setting failed:", e);
+    }
+  }, []);
+
+  // Update loop mode on player
+  useEffect(() => {
+    if (player) {
+      player.loop = true;
+    }
+  }, [player]);
+
+  // Handle sound source change
+  useEffect(() => {
+    const audioSource = SOUND_FILES[sound];
+    if (audioSource && player) {
+      try {
+        player.replace(audioSource);
+        player.loop = true;
+        if (isRunning) {
+          player.play();
+        }
+      } catch (e) {
+        console.warn("Failed to change sound track:", e);
+      }
+    }
+  }, [sound]);
+
+  // Play/Pause audio playback on isRunning change
+  useEffect(() => {
+    if (!player) return;
+    try {
+      if (isRunning) {
+        player.play();
+      } else {
+        player.pause();
+      }
+    } catch (e) {
+      console.warn("Failed to toggle audio play/pause:", e);
+    }
+  }, [isRunning, player]);
+
   const handleBack = () => {
+    try {
+      player?.pause();
+    } catch (e) {
+      // ignore
+    }
+
     if (router.canGoBack()) {
       router.back();
       return;
@@ -44,6 +115,7 @@ export default function RelaxationSessionScreen() {
     router.replace("/relaxation");
   };
 
+  // Timer Countdown Effect
   useEffect(() => {
     if (!isRunning) return;
 
@@ -54,19 +126,52 @@ export default function RelaxationSessionScreen() {
     return () => clearInterval(timer);
   }, [isRunning]);
 
+  // Complete session & auto-submit mission on timer finish
   useEffect(() => {
     if (secondsRemaining === 0 && isRunning) {
       setIsRunning(false);
       setIsComplete(true);
+
+      try {
+        player?.pause();
+      } catch (e) {
+        // ignore
+      }
+
+      if (token && selectedDayData) {
+        const relMission = selectedDayData.missions.find(
+          (m) => m.missionType === "relaxation" && m.status !== "completed"
+        );
+        if (relMission) {
+          void completeMission(relMission.id, {}, token);
+        }
+      }
     }
-  }, [secondsRemaining, isRunning]);
+  }, [secondsRemaining, isRunning, token, selectedDayData, completeMission, player]);
+
+  const relMission = selectedDayData?.missions?.find((m) => m.missionType === "relaxation");
+  const isOptional = selectedDayData?.relaxationMode === "optional" || relMission?.isOptional;
+
+  const handleSkip = async () => {
+    try {
+      player?.pause();
+    } catch (e) {
+      // ignore
+    }
+
+    if (relMission && token && relMission.status !== "completed") {
+      await completeMission(relMission.id, {}, token);
+    }
+
+    router.replace("/reflection");
+  };
 
   return (
     <View className="flex-1 bg-primary-300">
       <StatusBar style="light" />
       <SafeAreaView className="flex-1 p-5" edges={["top", "bottom", "left", "right"]}>
         <View className="w-full flex-1 items-center px-2">
-          <View className="h-12 w-full justify-center">
+          <View className="h-12 w-full flex-row items-center justify-between">
             <Pressable
               accessibilityLabel="Kembali"
               className="size-9 items-start justify-center active:opacity-60"
@@ -75,6 +180,15 @@ export default function RelaxationSessionScreen() {
             >
               <CaretLeftIcon className="text-white" size={26} />
             </Pressable>
+            {isOptional && (
+              <Pressable
+                accessibilityLabel="Lewati Relaksasi"
+                className="rounded-full border border-white/40 bg-white/20 px-3 py-1.5 active:opacity-70"
+                onPress={handleSkip}
+              >
+                <Text className="font-poppins-semibold text-xs text-white">Lewati Tahap Ini</Text>
+              </Pressable>
+            )}
           </View>
 
           <SoundSelect onValueChange={setSound} value={sound} />

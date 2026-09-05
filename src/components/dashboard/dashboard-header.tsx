@@ -18,15 +18,20 @@ interface DayStreak {
   active: boolean;
 }
 
-const STREAK_DAYS: DayStreak[] = [
-  { day: "Sen", active: true },
-  { day: "Sel", active: true },
-  { day: "Rab", active: true },
-  { day: "Kam", active: true },
-  { day: "Jum", active: true },
-  { day: "Sab", active: false },
-  { day: "Min", active: false },
-];
+const getDynamicStreakDays = (streak: number): DayStreak[] => {
+  const days = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
+  if (!streak || streak <= 0) {
+    return days.map((day) => ({ day, active: false }));
+  }
+
+  const jsDay = new Date().getDay();
+  const todayIndex = jsDay === 0 ? 6 : jsDay - 1;
+
+  return days.map((day, idx) => {
+    const isActive = idx <= todayIndex && (todayIndex - idx) < streak;
+    return { day, active: isActive };
+  });
+};
 
 interface DashboardHeaderProps {
   userName?: string;
@@ -36,15 +41,20 @@ interface DashboardHeaderProps {
 }
 
 export function DashboardHeader({
-  userName = "Username",
+  userName = "Pengguna",
   avatarUrl,
-  currentStreak = 5,
-  maxStreak = 10,
+  currentStreak = 0,
+  maxStreak = 0,
 }: DashboardHeaderProps) {
   const streakSheetRef = useRef<BottomSheetModal>(null);
 
-  const hasAvatar =
-    typeof avatarUrl === "string" ? avatarUrl.trim().length > 0 : Boolean(avatarUrl);
+  const streakDays = getDynamicStreakDays(currentStreak);
+
+  const imageSource = avatarUrl
+    ? typeof avatarUrl === "string"
+      ? { uri: avatarUrl }
+      : avatarUrl
+    : DEFAULT_AVATAR;
 
   const handleOpenStreakSheet = () => {
     streakSheetRef.current?.present();
@@ -98,8 +108,8 @@ export function DashboardHeader({
         {/* Streak Harian Section */}
         <View className="mt-4">
           <View className="flex-row justify-between items-center mb-2.5">
-            <Text className="font-poppins-semibold text-neutral-700 text-base">
-              Streak Harian
+            <Text className="font-poppins-semibold text-neutral-700 text-sm">
+              Streak Harian ({currentStreak} Hari)
             </Text>
             <Pressable onPress={handleOpenStreakSheet} hitSlop={8}>
               <Text className="font-poppins text-neutral-700 text-sm">
@@ -110,7 +120,7 @@ export function DashboardHeader({
 
           {/* 7 Hari Streak Pills */}
           <View className="flex-row justify-between items-center">
-            {STREAK_DAYS.map((item, index) => (
+            {streakDays.map((item, index) => (
               <View
                 key={index}
                 className="w-11 h-14 bg-white/90 rounded-2xl items-center justify-center shadow-sm shadow-black/5"
