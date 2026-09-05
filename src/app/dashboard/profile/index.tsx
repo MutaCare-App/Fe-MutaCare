@@ -12,11 +12,13 @@ import { CaretRightIcon } from "phosphor-react-native/src/icons/CaretRight";
 import { SignOutIcon } from "phosphor-react-native/src/icons/SignOut";
 import { UserGearIcon } from "phosphor-react-native/src/icons/UserGear";
 import { ActivityIndicator, Pressable, View } from "react-native";
+import { useEffect } from "react";
 
 [BrainIcon, CaretRightIcon, LockKeyIcon, SignOutIcon, UserGearIcon].forEach(iconWithClassName);
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const token = useAuthStore((state) => state.token);
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const fetchProfile = useAuthStore((state) => state.fetchProfile);
@@ -24,6 +26,12 @@ export default function ProfileScreen() {
   const profileError = useAuthStore((state) => state.profileError);
   const name = user?.fullName || "Pengguna";
   const email = user?.email || "Email tidak tersedia";
+
+  useEffect(() => {
+    if (token) {
+      void fetchProfile();
+    }
+  }, [fetchProfile, token]);
 
   const handleLogout = () => {
     logout();

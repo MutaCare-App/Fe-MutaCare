@@ -1,6 +1,6 @@
 import { iconWithClassName } from "@/lib/iconWithClassName";
 import { useAuthStore } from "@/store/useAuthStore";
-import { Tabs } from "expo-router";
+import { Tabs, useRouter } from "expo-router";
 import { ChartBarIcon } from "phosphor-react-native/src/icons/ChartBar";
 import { HouseIcon } from "phosphor-react-native/src/icons/House";
 import { SignpostIcon } from "phosphor-react-native/src/icons/Signpost";
@@ -14,15 +14,21 @@ iconWithClassName(ChartBarIcon);
 iconWithClassName(UserIcon);
 
 export default function DashboardTabsLayout() {
+  const router = useRouter();
   const token = useAuthStore((state) => state.token);
+  const hasHydrated = useAuthStore((state) => state.hasHydrated);
   const fetchProfile = useAuthStore((state) => state.fetchProfile);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
-    if (token) {
+    if (!hasHydrated) return;
+
+    if (!token) {
+      router.replace("/auth/login");
+    } else {
       void fetchProfile();
     }
-  }, [fetchProfile, token]);
+  }, [fetchProfile, token, hasHydrated, router]);
 
   // Dynamically calculate bottom padding & tab bar height based on device safe area insets
   const bottomPadding = insets.bottom > 0 ? insets.bottom + 2 : 10;
@@ -99,6 +105,11 @@ export default function DashboardTabsLayout() {
             />
           ),
         }}
+        listeners={({ navigation }) => ({
+          tabPress: () => {
+            navigation.navigate("progress", { screen: "index" });
+          },
+        })}
       />
       <Tabs.Screen
         name="profile"

@@ -5,13 +5,13 @@ import { iconWithClassName } from "@/lib/iconWithClassName";
 import { FlameIcon } from "phosphor-react-native/src/icons/Flame";
 import { HandWavingIcon } from "phosphor-react-native/src/icons/HandWaving";
 import React, { useRef } from "react";
-import { ImageSourcePropType, Pressable, View } from "react-native";
+import { Image, ImageSourcePropType, Pressable, View } from "react-native";
 import { StreakDetailSheet } from "./streak/streak-detail-sheet";
 
 iconWithClassName(HandWavingIcon);
 iconWithClassName(FlameIcon);
 
-const DEFAULT_AVATAR = require("../../../assets/images/dummy-profile.png");
+const DEFAULT_AVATAR = require("../../../assets/images/default-profile.png");
 
 interface DayStreak {
   day: string;
@@ -65,13 +65,32 @@ export function DashboardHeader({
       <View className="bg-secondary-200 pt-4 pb-5 px-5 rounded-b-3xl">
         {/* Profil & Salam */}
         <View className="flex-row items-center gap-3">
-          <Avatar alt={`${userName}'s avatar`} className="size-16 border border-transparent">
-            <AvatarImage source={imageSource} />
-            <AvatarFallback>
-              <Text className="font-poppins-semibold text-neutral-600 text-base">
-                {userName?.trim() ? userName.trim().charAt(0).toUpperCase() : "U"}
-              </Text>
-            </AvatarFallback>
+          <Avatar alt={`${userName}'s avatar`} className="size-16 border-2 border-white">
+            {hasAvatar ? (
+              <>
+                <AvatarImage
+                  source={
+                    typeof avatarUrl === "string"
+                      ? { uri: avatarUrl.trim() }
+                      : avatarUrl!
+                    
+                  }
+                />
+                <AvatarFallback className="border-2 border-white">
+                  <Image
+                    source={DEFAULT_AVATAR}
+                    className="size-full "
+                    resizeMode="cover"
+                  />
+                </AvatarFallback>
+              </>
+            ) : (
+              <Image
+                source={DEFAULT_AVATAR}
+                className="size-full"
+                resizeMode="cover"
+              />
+            )}
           </Avatar>
           <View className="flex-1">
             <View className="flex-row items-center gap-1.5">
@@ -93,7 +112,7 @@ export function DashboardHeader({
               Streak Harian ({currentStreak} Hari)
             </Text>
             <Pressable onPress={handleOpenStreakSheet} hitSlop={8}>
-              <Text className="font-poppins text-neutral-700 text-[11px] underline">
+              <Text className="font-poppins text-neutral-700 text-sm">
                 Lihat Streak
               </Text>
             </Pressable>
