@@ -7,7 +7,7 @@ import { Text } from "@/components/ui/text";
 import { UpdateUserProfilePayload } from "@/services/userService";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 
 function isValidDate(value: string) {
@@ -38,16 +38,23 @@ export default function EditProfileScreen() {
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || "");
   const [validationError, setValidationError] = useState<string | null>(null);
 
+  const touchedFields = useRef<{
+    nickname?: boolean;
+    gender?: boolean;
+    dateOfBirth?: boolean;
+    avatarUrl?: boolean;
+  }>({});
+
   useEffect(() => {
     void fetchProfile();
   }, [fetchProfile]);
 
   useEffect(() => {
     if (user) {
-      setNickname(user.nickname || "");
-      setGender(user.gender || "");
-      setDateOfBirth(user.dateOfBirth || "");
-      setAvatarUrl(user.avatarUrl || "");
+      if (!touchedFields.current.nickname) setNickname(user.nickname || "");
+      if (!touchedFields.current.gender) setGender(user.gender || "");
+      if (!touchedFields.current.dateOfBirth) setDateOfBirth(user.dateOfBirth || "");
+      if (!touchedFields.current.avatarUrl) setAvatarUrl(user.avatarUrl || "");
     }
   }, [user]);
 
@@ -95,7 +102,10 @@ export default function EditProfileScreen() {
         <ProfileAvatar
           avatarUrl={avatarUrl}
           name={name}
-          onSelectImage={setAvatarUrl}
+          onSelectImage={(uri) => {
+            touchedFields.current.avatarUrl = true;
+            setAvatarUrl(uri);
+          }}
           size="medium"
         />
       </View>
@@ -109,7 +119,10 @@ export default function EditProfileScreen() {
         />
         <ProfileField
           label="Nama Panggilan"
-          onChangeText={setNickname}
+          onChangeText={(text) => {
+            touchedFields.current.nickname = true;
+            setNickname(text);
+          }}
           placeholder="Masukkan nama panggilan"
           value={nickname}
         />
@@ -118,13 +131,19 @@ export default function EditProfileScreen() {
           keyboardType="numbers-and-punctuation"
           label="Tanggal Lahir"
           maxLength={10}
-          onChangeText={setDateOfBirth}
+          onChangeText={(text) => {
+            touchedFields.current.dateOfBirth = true;
+            setDateOfBirth(text);
+          }}
           placeholder="YYYY-MM-DD"
           value={dateOfBirth}
         />
         <ProfileSelect
           label="Jenis Kelamin"
-          onValueChange={setGender}
+          onValueChange={(value) => {
+            touchedFields.current.gender = true;
+            setGender(value);
+          }}
           options={["Perempuan", "Laki-laki"]}
           placeholder="Jenis Kelamin"
           value={gender}

@@ -61,7 +61,7 @@ export class UserService {
     payload: ChangePasswordPayload,
     token: string,
   ): Promise<void> {
-    await apiFetch<null>(
+    const res = await apiFetch<null>(
       '/users/password',
       {
         method: 'PUT',
@@ -69,5 +69,9 @@ export class UserService {
       },
       token,
     );
+
+    if (!res || !res.success) {
+      throw new Error(res?.message || 'Gagal memperbarui kata sandi');
+    }
   }
 }
