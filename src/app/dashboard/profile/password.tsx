@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, View } from "react-native";
 
 export default function ChangePasswordScreen() {
@@ -19,6 +19,10 @@ export default function ChangePasswordScreen() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [visibleField, setVisibleField] = useState<string | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
+
+  useEffect(() => {
+    clearPasswordError();
+  }, [clearPasswordError]);
 
   const toggleVisibility = (field: string) => {
     setVisibleField((current) => (current === field ? null : field));

@@ -46,8 +46,9 @@ export default function EditProfileScreen() {
   }>({});
 
   useEffect(() => {
+    clearProfileError();
     void fetchProfile();
-  }, [fetchProfile]);
+  }, [fetchProfile, clearProfileError]);
 
   useEffect(() => {
     if (user) {

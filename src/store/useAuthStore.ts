@@ -120,7 +120,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
       set((state) => ({
         user: state.user
-          ? { ...state.user, ...payload, ...updatedProfile, email: updatedProfile.email || state.user.email }
+          ? { ...state.user, ...payload, ...updatedProfile, email: updatedProfile.email || state.user.email || '' }
           : state.user,
         isProfileUpdating: false,
         profileError: null,
