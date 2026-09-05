@@ -1,15 +1,14 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BottomSheetModal } from "@/components/ui/bottom-sheet";
-import { Text } from "@/components/ui/text";
 import { iconWithClassName } from "@/lib/iconWithClassName";
 import { CameraIcon } from "phosphor-react-native/src/icons/Camera";
 import React, { useRef } from "react";
-import { ImageSourcePropType, Pressable, View } from "react-native";
+import { Image, ImageSourcePropType, Pressable, View } from "react-native";
 import { AvatarPickerSheet } from "./avatar-picker-sheet";
 
 iconWithClassName(CameraIcon);
 
-const DEFAULT_AVATAR = require("../../../assets/images/dummy-profile.png");
+const DEFAULT_AVATAR = require("../../../assets/images/default-profile.png");
 
 interface ProfileAvatarProps {
   avatarUrl?: string | ImageSourcePropType | null;
@@ -30,11 +29,8 @@ export function ProfileAvatar({
 }: ProfileAvatarProps) {
   const pickerSheetRef = useRef<BottomSheetModal>(null);
 
-  const imageSource = avatarUrl
-    ? typeof avatarUrl === "string"
-      ? { uri: avatarUrl }
-      : avatarUrl
-    : DEFAULT_AVATAR;
+  const hasAvatar =
+    typeof avatarUrl === "string" ? avatarUrl.trim().length > 0 : Boolean(avatarUrl);
 
   const avatarClass = size === "large" ? "size-24" : "size-[94px]";
 
@@ -60,12 +56,30 @@ export function ProfileAvatar({
           className="active:opacity-80"
         >
           <Avatar alt={`${name} avatar`} className={avatarClass}>
-            <AvatarImage source={imageSource} />
-            <AvatarFallback>
-              <Text className="font-poppins-semibold text-xl text-neutral-600">
-                {name.trim().charAt(0).toUpperCase() || "U"}
-              </Text>
-            </AvatarFallback>
+            {hasAvatar ? (
+              <>
+                <AvatarImage
+                  source={
+                    typeof avatarUrl === "string"
+                      ? { uri: avatarUrl.trim() }
+                      : avatarUrl!
+                  }
+                />
+                <AvatarFallback>
+                  <Image
+                    source={DEFAULT_AVATAR}
+                    className="size-full "
+                    resizeMode="cover"
+                  />
+                </AvatarFallback>
+              </>
+            ) : (
+              <Image
+                source={DEFAULT_AVATAR}
+                className="size-full"
+                resizeMode="cover"
+              />
+            )}
           </Avatar>
         </Pressable>
 
