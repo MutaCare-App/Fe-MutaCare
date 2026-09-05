@@ -63,7 +63,11 @@ export default function ChangePasswordScreen() {
       <View className="mt-7 gap-3">
         <ProfileField
           label="Kata Sandi Saat Ini"
-          onChangeText={setCurrentPassword}
+          onChangeText={(text) => {
+            setLocalError(null);
+            clearPasswordError();
+            setCurrentPassword(text);
+          }}
           onToggleVisibility={() => toggleVisibility("current")}
           placeholder="••••••••••••"
           secureTextEntry={visibleField !== "current"}
@@ -72,7 +76,11 @@ export default function ChangePasswordScreen() {
         />
         <ProfileField
           label="Kata Sandi Baru"
-          onChangeText={setNewPassword}
+          onChangeText={(text) => {
+            setLocalError(null);
+            clearPasswordError();
+            setNewPassword(text);
+          }}
           onToggleVisibility={() => toggleVisibility("new")}
           placeholder="Masukkan Kata Sandi Baru"
           secureTextEntry={visibleField !== "new"}
@@ -81,7 +89,11 @@ export default function ChangePasswordScreen() {
         />
         <ProfileField
           label="Konfirmasi Kata Sandi Baru"
-          onChangeText={setConfirmPassword}
+          onChangeText={(text) => {
+            setLocalError(null);
+            clearPasswordError();
+            setConfirmPassword(text);
+          }}
           onToggleVisibility={() => toggleVisibility("confirm")}
           placeholder="Konfirmasi Kata Sandi Baru"
           secureTextEntry={visibleField !== "confirm"}
