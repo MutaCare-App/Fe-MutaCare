@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { AuthService, AuthUserData, LoginPayload, RegisterPayload } from '@/services/authService';
-import { UpdateUserProfilePayload, UserService } from '@/services/userService';
+import { ChangePasswordPayload, UpdateUserProfilePayload, UserService } from '@/services/userService';
 
 interface AuthState {
   user: AuthUserData | null;
@@ -11,14 +11,18 @@ interface AuthState {
   isProfileLoading: boolean;
   isProfileUpdating: boolean;
   profileError: string | null;
+  isPasswordChanging: boolean;
+  passwordError: string | null;
 
   registerUser: (payload: RegisterPayload) => Promise<boolean>;
   loginUser: (payload: LoginPayload) => Promise<boolean>;
   fetchProfile: () => Promise<boolean>;
   updateProfile: (payload: UpdateUserProfilePayload) => Promise<boolean>;
+  changePassword: (payload: ChangePasswordPayload) => Promise<boolean>;
   logout: () => void;
   clearError: () => void;
   clearProfileError: () => void;
+  clearPasswordError: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -30,6 +34,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isProfileLoading: false,
   isProfileUpdating: false,
   profileError: null,
+  isPasswordChanging: false,
+  passwordError: null,
 
   registerUser: async (payload: RegisterPayload): Promise<boolean> => {
     set({ isLoading: true, error: null });
@@ -86,8 +92,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
       set((state) => ({
         user: state.user
-          ? { ...state.user, ...profile }
-          : { ...profile, email: '' },
+          ? { ...state.user, ...profile, email: profile.email || state.user.email || '' }
+          : { ...profile, email: profile.email || '' },
         isProfileLoading: false,
         profileError: null,
       }));
@@ -114,7 +120,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
       set((state) => ({
         user: state.user
-          ? { ...state.user, ...payload, ...updatedProfile }
+          ? { ...state.user, ...payload, ...updatedProfile, email: updatedProfile.email || state.user.email }
           : state.user,
         isProfileUpdating: false,
         profileError: null,
@@ -123,6 +129,25 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Gagal memperbarui profil.';
       set({ isProfileUpdating: false, profileError: message });
+      return false;
+    }
+  },
+
+  changePassword: async (payload: ChangePasswordPayload): Promise<boolean> => {
+    const token = get().token;
+    if (!token) {
+      set({ passwordError: 'Sesi login tidak ditemukan.' });
+      return false;
+    }
+
+    set({ isPasswordChanging: true, passwordError: null });
+    try {
+      await UserService.changePassword(payload, token);
+      set({ isPasswordChanging: false, passwordError: null });
+      return true;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal memperbarui kata sandi.';
+      set({ isPasswordChanging: false, passwordError: message });
       return false;
     }
   },
@@ -136,9 +161,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       isProfileLoading: false,
       isProfileUpdating: false,
       profileError: null,
+      isPasswordChanging: false,
+      passwordError: null,
     });
   },
 
   clearError: () => set({ error: null }),
   clearProfileError: () => set({ profileError: null }),
+  clearPasswordError: () => set({ passwordError: null }),
 }));

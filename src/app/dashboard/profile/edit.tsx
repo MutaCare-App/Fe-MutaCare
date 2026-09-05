@@ -7,7 +7,7 @@ import { Text } from "@/components/ui/text";
 import { UpdateUserProfilePayload } from "@/services/userService";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 
 function isValidDate(value: string) {
@@ -26,6 +26,7 @@ function isValidDate(value: string) {
 export default function EditProfileScreen() {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
+  const fetchProfile = useAuthStore((state) => state.fetchProfile);
   const updateProfile = useAuthStore((state) => state.updateProfile);
   const clearProfileError = useAuthStore((state) => state.clearProfileError);
   const isProfileUpdating = useAuthStore((state) => state.isProfileUpdating);
@@ -36,6 +37,19 @@ export default function EditProfileScreen() {
   const [dateOfBirth, setDateOfBirth] = useState(user?.dateOfBirth || "");
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || "");
   const [validationError, setValidationError] = useState<string | null>(null);
+
+  useEffect(() => {
+    void fetchProfile();
+  }, [fetchProfile]);
+
+  useEffect(() => {
+    if (user) {
+      setNickname(user.nickname || "");
+      setGender(user.gender || "");
+      setDateOfBirth(user.dateOfBirth || "");
+      setAvatarUrl(user.avatarUrl || "");
+    }
+  }, [user]);
 
   const handleSave = async () => {
     const normalizedNickname = nickname.trim();

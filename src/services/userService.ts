@@ -2,6 +2,7 @@ import { apiFetch } from '@/lib/api';
 
 export interface UserProfileData {
   id: string;
+  email?: string | null;
   fullName: string;
   nickname: string | null;
   avatarUrl: string | null;
@@ -17,6 +18,12 @@ export interface UpdateUserProfilePayload {
   gender?: string;
   dateOfBirth?: string;
   avatarUrl?: string;
+}
+
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
 export class UserService {
@@ -48,5 +55,19 @@ export class UserService {
     }
 
     return res.data;
+  }
+
+  public static async changePassword(
+    payload: ChangePasswordPayload,
+    token: string,
+  ): Promise<void> {
+    await apiFetch<null>(
+      '/users/password',
+      {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      },
+      token,
+    );
   }
 }
