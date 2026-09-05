@@ -35,7 +35,7 @@ export default function EditProfileScreen() {
   const name = user?.fullName || "Pengguna";
   const [nickname, setNickname] = useState(user?.nickname || "");
   const [gender, setGender] = useState(user?.gender || "");
-  const [dateOfBirth, setDateOfBirth] = useState(user?.dateOfBirth || "");
+  const [dateOfBirth, setDateOfBirth] = useState(user?.dateOfBirth ? user.dateOfBirth.slice(0, 10) : ""); 
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || "");
   const [validationError, setValidationError] = useState<string | null>(null);
 
@@ -57,7 +57,7 @@ export default function EditProfileScreen() {
     if (user) {
       if (!touchedFields.current.nickname) setNickname(user.nickname || "");
       if (!touchedFields.current.gender) setGender(user.gender || "");
-      if (!touchedFields.current.dateOfBirth) setDateOfBirth(user.dateOfBirth || "");
+      if (!touchedFields.current.dateOfBirth) setDateOfBirth(user.dateOfBirth ? user.dateOfBirth.slice(0, 10) : "");
       if (!touchedFields.current.avatarUrl) setAvatarUrl(user.avatarUrl || "");
     }
   }, [user]);
@@ -81,7 +81,7 @@ export default function EditProfileScreen() {
     if (gender && gender !== (user?.gender || "")) {
       payload.gender = gender;
     }
-    if (normalizedDateOfBirth !== (user?.dateOfBirth || "")) {
+    if (normalizedDateOfBirth !== (user?.dateOfBirth ? user.dateOfBirth.slice(0, 10) : "")) {
       payload.dateOfBirth = normalizedDateOfBirth;
     }
     if (avatarUrl && avatarUrl !== (user?.avatarUrl || "")) {
