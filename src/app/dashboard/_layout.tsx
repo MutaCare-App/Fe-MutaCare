@@ -94,6 +94,11 @@ export default function DashboardTabsLayout() {
             />
           ),
         }}
+        listeners={({ navigation }) => ({
+          tabPress: () => {
+            navigation.navigate("progress", { screen: "index" });
+          },
+        })}
       />
       <Tabs.Screen
         name="profile"
