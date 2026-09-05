@@ -1,24 +1,29 @@
+import AuthErrorBanner from "@/components/auth/auth-error-banner";
+import AuthFooterLink from "@/components/auth/auth-footer-link";
 import AuthHeader from "@/components/auth/auth-header";
+import AuthInput from "@/components/auth/auth-input";
+import AuthSocialButton from "@/components/auth/auth-social-button";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Text } from "@/components/ui/text";
 import { iconWithClassName } from "@/lib/iconWithClassName";
+import { loginSchema } from "@/schemas/authSchema";
 import { useAuthStore } from "@/store/useAuthStore";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { EnvelopeIcon } from "phosphor-react-native/src/icons/Envelope";
-import { EyeIcon } from "phosphor-react-native/src/icons/Eye";
-import { EyeSlashIcon } from "phosphor-react-native/src/icons/EyeSlash";
 import { KeyIcon } from "phosphor-react-native/src/icons/Key";
 import { useState } from "react";
-import { ActivityIndicator, Image, Pressable, View } from "react-native";
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // Daftarkan icon ke NativeWind
 iconWithClassName(EnvelopeIcon);
 iconWithClassName(KeyIcon);
-iconWithClassName(EyeIcon);
-iconWithClassName(EyeSlashIcon);
 
 export default function Login() {
   const router = useRouter();
@@ -33,23 +38,19 @@ export default function Login() {
     setLocalError(null);
     clearError();
 
-    if (!email.trim()) {
-      setLocalError("Email wajib diisi");
-      return;
-    }
-
-    if (!password) {
-      setLocalError("Kata sandi wajib diisi");
-      return;
-    }
-
-    const success = await loginUser({
-      email: email.trim(),
+    const parseResult = loginSchema.safeParse({
+      email,
       password,
     });
 
+    if (!parseResult.success) {
+      setLocalError(parseResult.error.issues[0]?.message || "Input tidak valid");
+      return;
+    }
+
+    const success = await loginUser(parseResult.data);
+
     if (success) {
-      // Redirect ke halaman assessment setelah berhasil login
       router.replace("/assessment");
     }
   };
@@ -57,42 +58,42 @@ export default function Login() {
   const activeError = localError || error;
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#fff" }}>
-      <AuthHeader />
-      <SafeAreaView
-        style={{ flex: 1 }}
-        edges={["bottom", "left", "right"]}
-        className="items-center px-8 flex justify-between"
-      >
-        <View className="flex w-full">
-          <View className="flex items-center">
-            <Text className="pt-6 text-3xl font-feather-bold text-primary-300">
-              Masuk ke Mutacare
-            </Text>
-            <Text className="text-neutral-700 font-poppins text-center pt-1">
-              Masuk untuk melanjutkan perjalanan terapimu
-            </Text>
-          </View>
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: "#fff" }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <View style={{ flex: 1, backgroundColor: "#fff" }}>
+        <AuthHeader />
+        <SafeAreaView
+          style={{ flex: 1 }}
+          edges={["bottom", "left", "right"]}
+          className="px-8"
+        >
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
+            contentContainerStyle={{ flexGrow: 1, justifyContent: "space-between", paddingBottom: 32 }}
+            className="w-full"
+          >
+            <View className="flex w-full">
+              {/* Header Text */}
+              <View className="flex items-center">
+                <Text className="pt-6 text-3xl font-feather-bold text-primary-300">
+                  Masuk ke Mutacare
+                </Text>
+                <Text className="text-neutral-700 font-poppins text-center pt-1">
+                  Masuk untuk melanjutkan perjalanan terapimu
+                </Text>
+              </View>
 
-          {/* Banner Error jika ada */}
-          {activeError && (
-            <View className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <Text className="text-red-600 font-poppins text-sm text-center">
-                {activeError}
-              </Text>
-            </View>
-          )}
+              {/* Banner Error */}
+              <AuthErrorBanner message={activeError} />
 
-          <View className="flex gap-4 pt-6 w-full">
-            {/* Input Email */}
-            <View>
-              <Label className="font-poppins-semibold text-base">Email</Label>
-              <View className="relative justify-center mt-1">
-                <EnvelopeIcon
-                  size={28}
-                  className="absolute left-3.5 z-10 text-secondary-300"
-                />
-                <Input
+              {/* Form Fields */}
+              <View className="flex gap-4 pt-6 w-full">
+                <AuthInput
+                  label="Email"
                   placeholder="Masukkan Alamat Email Anda"
                   keyboardType="email-address"
                   autoCapitalize="none"
@@ -100,87 +101,55 @@ export default function Login() {
                   onChangeText={(text) => {
                     setEmail(text);
                     setLocalError(null);
+                    clearError();
                   }}
-                  className="pl-14"
+                  icon={<EnvelopeIcon size={28} className="text-secondary-300" />}
                 />
-              </View>
-            </View>
 
-            {/* Input Kata Sandi */}
-            <View>
-              <Label className="font-poppins-semibold text-base">
-                Kata Sandi
-              </Label>
-              <View className="relative justify-center mt-1">
-                <KeyIcon
-                  size={28}
-                  className="absolute left-3.5 z-10 text-secondary-300"
-                />
-                <Input
+                <AuthInput
+                  label="Kata Sandi"
                   placeholder="Masukkan Kata Sandi Anda"
-                  secureTextEntry={!showPassword}
+                  isPassword
+                  showPassword={showPassword}
+                  onTogglePassword={() => setShowPassword((prev) => !prev)}
                   value={password}
                   onChangeText={(text) => {
                     setPassword(text);
                     setLocalError(null);
+                    clearError();
                   }}
-                  className="pl-14 pr-14"
+                  icon={<KeyIcon size={28} className="text-secondary-300" />}
                 />
-                <Pressable
-                  onPress={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-3.5 z-10 p-1"
-                  hitSlop={8}
+
+                {/* Tombol Masuk */}
+                <Button
+                  onPress={handleLogin}
+                  disabled={isLoading}
+                  className="bg-primary-300 w-full h-16 rounded-lg justify-center items-center mt-2"
                 >
-                  {showPassword ? (
-                    <EyeSlashIcon size={28} className="text-neutral-700" />
+                  {isLoading ? (
+                    <ActivityIndicator color="#fff" size="small" />
                   ) : (
-                    <EyeIcon size={28} className="text-neutral-300" />
+                    <Text className="text-white font-poppins-semibold text-lg">
+                      Masuk
+                    </Text>
                   )}
-                </Pressable>
+                </Button>
               </View>
+
+              {/* Atau Masuk Dengan */}
+              <AuthSocialButton title="Atau Masuk Dengan" />
             </View>
 
-            {/* Tombol Masuk */}
-            <Button
-              onPress={handleLogin}
-              disabled={isLoading}
-              className="bg-primary-300 w-full h-16 rounded-lg justify-center items-center mt-2"
-            >
-              {isLoading ? (
-                <ActivityIndicator color="#fff" size="small" />
-              ) : (
-                <Text className="text-white font-poppins-semibold text-lg">
-                  Masuk
-                </Text>
-              )}
-            </Button>
-          </View>
-
-          <View className="flex justify-center items-center py-4 gap-2">
-            <Text className="font-poppins text-neutral-700">
-              Atau Masuk Dengan
-            </Text>
-            <Pressable className="h-16 w-16 border border-primary-300 rounded-2xl items-center justify-center active:bg-neutral-100">
-              <Image
-                source={require("../../../assets/logo/google-logo.png")}
-                className="h-10 w-10"
-                resizeMode="contain"
-              />
-            </Pressable>
-          </View>
-        </View>
-
-        <View className="py-4">
-          <Text className="font-poppins text-neutral-700 text-center">
-            Belum punya akun?{" "}
-            <Link href="/auth/register" asChild>
-              <Text className="font-poppins underline text-brand-accent">
-                Daftar Akun
-              </Text>
-            </Link>
-          </Text>
-        </View>
-      </SafeAreaView>
-    </View>
+            {/* Footer */}
+            <AuthFooterLink
+              prompt="Belum punya akun?"
+              actionText="Daftar Akun"
+              href="/auth/register"
+            />
+          </ScrollView>
+        </SafeAreaView>
+      </View>
+    </KeyboardAvoidingView>
   );
 }

@@ -2,6 +2,7 @@ import { Stack } from "expo-router";
 import { configureReanimatedLogger, ReanimatedLogLevel } from "react-native-reanimated";
 import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "expo-font";
+import { useAuthStore } from "@/store/useAuthStore";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
@@ -16,6 +17,7 @@ configureReanimatedLogger({
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const hasHydrated = useAuthStore((state) => state.hasHydrated);
   const [loaded, error] = useFonts({
     "Feather Bold": require("../../assets/fonts/Feather Bold.ttf"),
     "Poppins-Black": require("../../assets/fonts/Poppins-Black.ttf"),
@@ -39,12 +41,12 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (loaded || error) {
+    if ((loaded || error) && hasHydrated) {
       SplashScreen.hideAsync();
     }
-  }, [loaded, error]);
+  }, [loaded, error, hasHydrated]);
 
-  if (!loaded && !error) {
+  if ((!loaded && !error) || !hasHydrated) {
     return null;
   }
 

@@ -36,7 +36,7 @@ interface DashboardHeaderProps {
 }
 
 export function DashboardHeader({
-  userName = "Lee Chaeryeong",
+  userName = "Username",
   avatarUrl,
   currentStreak = 5,
   maxStreak = 10,
@@ -55,7 +55,7 @@ export function DashboardHeader({
       <View className="bg-secondary-200 pt-4 pb-5 px-5 rounded-b-3xl">
         {/* Profil & Salam */}
         <View className="flex-row items-center gap-3">
-          <Avatar alt={`${userName}'s avatar`} className="size-16 border border-transparent">
+          <Avatar alt={`${userName}'s avatar`} className="size-16 border-2 border-white">
             {hasAvatar ? (
               <>
                 <AvatarImage
@@ -98,11 +98,11 @@ export function DashboardHeader({
         {/* Streak Harian Section */}
         <View className="mt-4">
           <View className="flex-row justify-between items-center mb-2.5">
-            <Text className="font-poppins-semibold text-neutral-700 text-sm">
+            <Text className="font-poppins-semibold text-neutral-700 text-base">
               Streak Harian
             </Text>
             <Pressable onPress={handleOpenStreakSheet} hitSlop={8}>
-              <Text className="font-poppins text-neutral-700 text-[11px] underline">
+              <Text className="font-poppins text-neutral-700 text-sm">
                 Lihat Streak
               </Text>
             </Pressable>

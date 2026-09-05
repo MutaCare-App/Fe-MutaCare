@@ -7,7 +7,7 @@ import { Text } from "@/components/ui/text";
 import { UpdateUserProfilePayload } from "@/services/userService";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 
 function isValidDate(value: string) {
@@ -25,7 +25,9 @@ function isValidDate(value: string) {
 
 export default function EditProfileScreen() {
   const router = useRouter();
+  const token = useAuthStore((state) => state.token);
   const user = useAuthStore((state) => state.user);
+  const fetchProfile = useAuthStore((state) => state.fetchProfile);
   const updateProfile = useAuthStore((state) => state.updateProfile);
   const clearProfileError = useAuthStore((state) => state.clearProfileError);
   const isProfileUpdating = useAuthStore((state) => state.isProfileUpdating);
@@ -33,9 +35,32 @@ export default function EditProfileScreen() {
   const name = user?.fullName || "Pengguna";
   const [nickname, setNickname] = useState(user?.nickname || "");
   const [gender, setGender] = useState(user?.gender || "");
-  const [dateOfBirth, setDateOfBirth] = useState(user?.dateOfBirth || "");
+  const [dateOfBirth, setDateOfBirth] = useState(user?.dateOfBirth ? user.dateOfBirth.slice(0, 10) : ""); 
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || "");
   const [validationError, setValidationError] = useState<string | null>(null);
+
+  const touchedFields = useRef<{
+    nickname?: boolean;
+    gender?: boolean;
+    dateOfBirth?: boolean;
+    avatarUrl?: boolean;
+  }>({});
+
+  useEffect(() => {
+    clearProfileError();
+    if (token) {
+      void fetchProfile();
+    }
+  }, [fetchProfile, clearProfileError, token]);
+
+  useEffect(() => {
+    if (user) {
+      if (!touchedFields.current.nickname) setNickname(user.nickname || "");
+      if (!touchedFields.current.gender) setGender(user.gender || "");
+      if (!touchedFields.current.dateOfBirth) setDateOfBirth(user.dateOfBirth ? user.dateOfBirth.slice(0, 10) : "");
+      if (!touchedFields.current.avatarUrl) setAvatarUrl(user.avatarUrl || "");
+    }
+  }, [user]);
 
   const handleSave = async () => {
     const normalizedNickname = nickname.trim();
@@ -56,7 +81,7 @@ export default function EditProfileScreen() {
     if (gender && gender !== (user?.gender || "")) {
       payload.gender = gender;
     }
-    if (normalizedDateOfBirth !== (user?.dateOfBirth || "")) {
+    if (normalizedDateOfBirth !== (user?.dateOfBirth ? user.dateOfBirth.slice(0, 10) : "")) {
       payload.dateOfBirth = normalizedDateOfBirth;
     }
     if (avatarUrl && avatarUrl !== (user?.avatarUrl || "")) {
@@ -81,7 +106,10 @@ export default function EditProfileScreen() {
         <ProfileAvatar
           avatarUrl={avatarUrl}
           name={name}
-          onSelectImage={setAvatarUrl}
+          onSelectImage={(uri) => {
+            touchedFields.current.avatarUrl = true;
+            setAvatarUrl(uri);
+          }}
           size="medium"
         />
       </View>
@@ -95,7 +123,10 @@ export default function EditProfileScreen() {
         />
         <ProfileField
           label="Nama Panggilan"
-          onChangeText={setNickname}
+          onChangeText={(text) => {
+            touchedFields.current.nickname = true;
+            setNickname(text);
+          }}
           placeholder="Masukkan nama panggilan"
           value={nickname}
         />
@@ -104,13 +135,19 @@ export default function EditProfileScreen() {
           keyboardType="numbers-and-punctuation"
           label="Tanggal Lahir"
           maxLength={10}
-          onChangeText={setDateOfBirth}
+          onChangeText={(text) => {
+            touchedFields.current.dateOfBirth = true;
+            setDateOfBirth(text);
+          }}
           placeholder="YYYY-MM-DD"
           value={dateOfBirth}
         />
         <ProfileSelect
           label="Jenis Kelamin"
-          onValueChange={setGender}
+          onValueChange={(value) => {
+            touchedFields.current.gender = true;
+            setGender(value);
+          }}
           options={["Perempuan", "Laki-laki"]}
           placeholder="Jenis Kelamin"
           value={gender}
