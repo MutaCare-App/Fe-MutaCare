@@ -18,6 +18,7 @@ import { useEffect } from "react";
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const token = useAuthStore((state) => state.token);
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const fetchProfile = useAuthStore((state) => state.fetchProfile);
@@ -27,8 +28,10 @@ export default function ProfileScreen() {
   const email = user?.email || "Email tidak tersedia";
 
   useEffect(() => {
-    void fetchProfile();
-  }, [fetchProfile]);
+    if (token) {
+      void fetchProfile();
+    }
+  }, [fetchProfile, token]);
 
   const handleLogout = () => {
     logout();

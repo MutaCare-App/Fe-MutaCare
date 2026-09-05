@@ -25,6 +25,7 @@ function isValidDate(value: string) {
 
 export default function EditProfileScreen() {
   const router = useRouter();
+  const token = useAuthStore((state) => state.token);
   const user = useAuthStore((state) => state.user);
   const fetchProfile = useAuthStore((state) => state.fetchProfile);
   const updateProfile = useAuthStore((state) => state.updateProfile);
@@ -47,8 +48,10 @@ export default function EditProfileScreen() {
 
   useEffect(() => {
     clearProfileError();
-    void fetchProfile();
-  }, [fetchProfile, clearProfileError]);
+    if (token) {
+      void fetchProfile();
+    }
+  }, [fetchProfile, clearProfileError, token]);
 
   useEffect(() => {
     if (user) {
