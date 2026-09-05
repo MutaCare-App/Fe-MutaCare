@@ -2,10 +2,12 @@ import { PreparationItem } from "@/components/relaxation/preparation-item";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { iconWithClassName } from "@/lib/iconWithClassName";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useJourneyStore } from "@/store/useJourneyStore";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { CaretLeftIcon } from "phosphor-react-native/src/icons/CaretLeft";
-import { Image, Pressable, View } from "react-native";
+import { ActivityIndicator, Image, Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 iconWithClassName(CaretLeftIcon);
@@ -18,6 +20,13 @@ const PREPARATION_STEPS = [
 
 export default function RelaxationIntroScreen() {
   const router = useRouter();
+  const token = useAuthStore((state) => state.token);
+  const selectedDayData = useJourneyStore((state) => state.selectedDayData);
+  const completeMission = useJourneyStore((state) => state.completeMission);
+  const isSubmitting = useJourneyStore((state) => state.isSubmitting);
+
+  const relMission = selectedDayData?.missions?.find((m) => m.missionType === "relaxation");
+  const isOptional = selectedDayData?.relaxationMode === "optional" || relMission?.isOptional;
 
   const handleBack = () => {
     if (router.canGoBack()) {
@@ -26,6 +35,13 @@ export default function RelaxationIntroScreen() {
     }
 
     router.replace("/dashboard/journey");
+  };
+
+  const handleSkip = async () => {
+    if (relMission && token && relMission.status !== "completed") {
+      await completeMission(relMission.id, {}, token);
+    }
+    router.push("/reflection");
   };
 
   return (
@@ -66,14 +82,31 @@ export default function RelaxationIntroScreen() {
             </View>
           </View>
 
-          <Button
-            className="h-12 w-full rounded-lg bg-primary-300 active:bg-primary-400"
-            onPress={() => router.push("/relaxation/session")}
-          >
-            <Text className="font-poppins-semibold text-base tracking-[0.7px] text-white">
-              Mulai Relaksasi
-            </Text>
-          </Button>
+          <View className="gap-2.5">
+            <Button
+              className="h-12 w-full rounded-lg bg-primary-300 active:bg-primary-400"
+              onPress={() => router.push("/relaxation/session")}
+            >
+              <Text className="font-poppins-semibold text-base tracking-[0.7px] text-white">
+                Mulai Relaksasi
+              </Text>
+            </Button>
+            {isOptional && (
+              <Button
+                className="h-12 w-full rounded-lg bg-emerald-50 border border-emerald-300 active:bg-emerald-100"
+                disabled={isSubmitting}
+                onPress={handleSkip}
+              >
+                {isSubmitting ? (
+                  <ActivityIndicator size="small" color="#047857" />
+                ) : (
+                  <Text className="font-poppins-semibold text-sm tracking-[0.7px] text-emerald-700">
+                    Lewati Relaksasi (Opsional)
+                  </Text>
+                )}
+              </Button>
+            )}
+          </View>
         </View>
       </SafeAreaView>
     </View>

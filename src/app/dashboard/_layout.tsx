@@ -6,7 +6,7 @@ import { HouseIcon } from "phosphor-react-native/src/icons/House";
 import { SignpostIcon } from "phosphor-react-native/src/icons/Signpost";
 import { UserIcon } from "phosphor-react-native/src/icons/User";
 import { useEffect } from "react";
-import { Platform } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 iconWithClassName(HouseIcon);
 iconWithClassName(SignpostIcon);
@@ -16,6 +16,7 @@ iconWithClassName(UserIcon);
 export default function DashboardTabsLayout() {
   const token = useAuthStore((state) => state.token);
   const fetchProfile = useAuthStore((state) => state.fetchProfile);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (token) {
@@ -23,30 +24,40 @@ export default function DashboardTabsLayout() {
     }
   }, [fetchProfile, token]);
 
+  // Dynamically calculate bottom padding & tab bar height based on device safe area insets
+  const bottomPadding = insets.bottom > 0 ? insets.bottom + 2 : 10;
+  const tabHeight = 56 + bottomPadding;
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: "#609966",
-        tabBarInactiveTintColor: "#A1A1A1",
+        tabBarInactiveTintColor: "#9CA3AF",
         tabBarStyle: {
           backgroundColor: "#ffffff",
           borderTopWidth: 1,
           borderTopColor: "#F3F4F6",
-          height: Platform.OS === "ios" ? 96 : 96,
-          paddingBottom: Platform.OS === "ios" ? 28 : 10,
-          paddingTop: 8,
+          height: tabHeight,
+          paddingBottom: bottomPadding,
+          paddingTop: 6,
           borderTopLeftRadius: 24,
           borderTopRightRadius: 24,
           shadowColor: "#000",
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.05,
-          shadowRadius: 8,
-          elevation: 5,
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.06,
+          shadowRadius: 10,
+          elevation: 8,
+        },
+        tabBarItemStyle: {
+          justifyContent: "center",
+          alignItems: "center",
+          paddingVertical: 2,
         },
         tabBarLabelStyle: {
           fontFamily: "Poppins-Medium",
           fontSize: 11,
+          marginTop: 2,
         },
       }}
     >

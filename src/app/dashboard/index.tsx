@@ -1,12 +1,22 @@
+import { useEffect } from "react";
 import { DailyPracticeCard } from "@/components/dashboard/daily-practice-card";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { MoodCheckCard } from "@/components/dashboard/mood-check-card";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useJourneyStore } from "@/store/useJourneyStore";
 import { ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function DashboardScreen() {
   const user = useAuthStore((state) => state.user);
+  const token = useAuthStore((state) => state.token);
+  const fetchJourneyStatus = useJourneyStore((state) => state.fetchJourneyStatus);
+
+  useEffect(() => {
+    if (token) {
+      void fetchJourneyStatus(token);
+    }
+  }, [token, fetchJourneyStatus]);
 
   return (
     <View style={{ flex: 1, backgroundColor: "#FAFAFA" }}>

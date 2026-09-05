@@ -21,7 +21,7 @@ interface StreakDetailSheetProps {
 export const StreakDetailSheet = forwardRef<
   BottomSheetModal,
   StreakDetailSheetProps
->(({ currentStreak = 5, maxStreak = 10 }, ref) => {
+>(({ currentStreak = 0, maxStreak = 0 }, ref) => {
   const internalRef = useRef<BottomSheetModal>(null);
 
   useImperativeHandle(ref, () => internalRef.current as BottomSheetModal);

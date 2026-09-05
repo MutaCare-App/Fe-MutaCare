@@ -9,41 +9,48 @@ import {
 import { JourneyProgressHeader } from "@/components/journey/journey-progress-header";
 import { JourneyWeekCompleteDialog } from "@/components/journey/journey-week-complete-dialog";
 import { BottomSheetModal } from "@/components/ui/bottom-sheet";
+import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useJourneyStore } from "@/store/useJourneyStore";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { ImageSourcePropType, ScrollView, View } from "react-native";
+import { ActivityIndicator, Alert, ImageSourcePropType, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const COMPLETE_IMAGE = require("../../../assets/images/journey/day-complete.png");
 const CURRENT_IMAGE = require("../../../assets/images/journey/day-current.png");
 const LOCKED_IMAGE = require("../../../assets/images/journey/day-locked.png");
 
-interface JourneyDay {
+interface JourneyDayRenderItem {
   day: number;
   image: ImageSourcePropType;
   status: JourneyDayStatus;
   style: { left: number; top: number };
 }
 
-const DAYS: JourneyDay[] = [
-  { day: 1, image: COMPLETE_IMAGE, status: "complete", style: { left: 0, top: 0 } },
-  { day: 2, image: COMPLETE_IMAGE, status: "complete", style: { left: 85, top: 119 } },
-  { day: 3, image: COMPLETE_IMAGE, status: "complete", style: { left: 0, top: 238 } },
-  { day: 4, image: CURRENT_IMAGE, status: "current", style: { left: 85, top: 349 } },
-  { day: 5, image: LOCKED_IMAGE, status: "locked", style: { left: 0, top: 468 } },
-];
-
-interface ActiveDaySheet {
-  day: number;
-  mode: JourneySheetMode;
-}
-
 export default function JourneyScreen() {
   const router = useRouter();
+  const token = useAuthStore((state) => state.token);
+  const {
+    status,
+    selectedDayData,
+    isLoading,
+    moodCheckRequired,
+    fetchJourneyStatus,
+    fetchDayMissions,
+  } = useJourneyStore();
+
   const daySheetRef = useRef<BottomSheetModal>(null);
-  const [activeSheet, setActiveSheet] = useState<ActiveDaySheet | null>(null);
+  const [activeSheet, setActiveSheet] = useState<{ day: number; mode: JourneySheetMode } | null>(null);
   const [weekCompleteOpen, setWeekCompleteOpen] = useState(false);
+  const [moodAlertOpen, setMoodAlertOpen] = useState(false);
+
+  useEffect(() => {
+    if (token) {
+      void fetchJourneyStatus(token);
+    }
+  }, [token]);
 
   useEffect(() => {
     if (activeSheet) {
@@ -51,14 +58,32 @@ export default function JourneyScreen() {
     }
   }, [activeSheet]);
 
-  const handleDayPress = (day: JourneyDay) => {
-    const mode: JourneySheetMode =
-      day.status === "complete"
-        ? "success"
-        : day.status === "locked"
-          ? "locked"
-          : "tasks";
-    setActiveSheet({ day: day.day, mode });
+  const handleDayPress = async (dayNum: number, dayStatus: JourneyDayStatus) => {
+    // 1. If day is locked
+    if (dayStatus === "locked") {
+      setActiveSheet({ day: dayNum, mode: "locked" });
+      return;
+    }
+
+    // 2. If day is completed
+    if (dayStatus === "complete") {
+      void fetchDayMissions(dayNum, token);
+      setActiveSheet({ day: dayNum, mode: "success" });
+      return;
+    }
+
+    // 3. If day is active (today)
+    if (!status?.isMoodCheckedToday) {
+      setMoodAlertOpen(true);
+      return;
+    }
+
+    const result = await fetchDayMissions(dayNum, token);
+    if (result) {
+      setActiveSheet({ day: dayNum, mode: "tasks" });
+    } else if (useJourneyStore.getState().moodCheckRequired) {
+      setMoodAlertOpen(true);
+    }
   };
 
   const closeDaySheet = () => {
@@ -67,63 +92,154 @@ export default function JourneyScreen() {
 
   const startTraining = () => {
     closeDaySheet();
-    router.push("/relaxation");
+    const relMode = selectedDayData?.relaxationMode;
+    const relMission = selectedDayData?.missions?.find((m) => m.missionType === "relaxation");
+
+    if (
+      relMode === "skipped" ||
+      relMission?.isSkipped ||
+      relMission?.status === "completed" ||
+      relMission?.status === "skipped"
+    ) {
+      router.push("/reflection");
+    } else {
+      router.push("/relaxation");
+    }
   };
+
+  const progressPercentage = status
+    ? Math.round((status.completedDaysCount / status.totalDays) * 100)
+    : 0;
+
+  // Calculate day node positions (snake path layout)
+  const daysList: JourneyDayRenderItem[] = (status?.activeWeekDays || []).map((d, idx) => {
+    const isEven = idx % 2 === 0;
+    const renderStatus: JourneyDayStatus =
+      d.status === "completed" ? "complete" : d.status === "active" ? "current" : "locked";
+    const image =
+      renderStatus === "complete" ? COMPLETE_IMAGE : renderStatus === "current" ? CURRENT_IMAGE : LOCKED_IMAGE;
+
+    return {
+      day: d.dayNumber,
+      image,
+      status: renderStatus,
+      style: {
+        left: isEven ? 0 : 85,
+        top: idx * 118,
+      },
+    };
+  });
 
   return (
     <View className="flex-1 bg-white">
-      <SafeAreaView
-        className="flex-1"
-        edges={["top", "left", "right"]}
-      >
+      <SafeAreaView className="flex-1" edges={["top", "left", "right"]}>
         <ScrollView
           className="flex-1"
-          contentContainerClassName="items-center px-3.5 pb-2 pt-4"
+          contentContainerClassName="items-center px-3.5 pb-24 pt-4"
           showsVerticalScrollIndicator={false}
         >
           <Text className="w-full text-center font-feather-bold text-[22px] tracking-[0.8px] text-primary-300">
             Perjalanan Terapi
           </Text>
 
-          <View className="mt-7 w-full">
+          {/* Banner Peringatan Mood Check jika belum diisi */}
+          {status && !status.isMoodCheckedToday && (
+            <View className="mt-4 w-full p-3 bg-amber-50 border border-amber-200 rounded-xl items-center flex-row justify-between">
+              <View className="flex-1 pr-2">
+                <Text className="font-poppins-bold text-xs text-amber-800">
+                  Mood Check-in Hari Ini Belum Diisi!
+                </Text>
+
+              </View>
+              <Button
+                className="bg-amber-500 h-8 px-3 rounded-lg justify-center items-center"
+                onPress={() => router.push("/dashboard")}
+              >
+                <Text className="text-white font-poppins-semibold text-xs">
+                  Isi Mood
+                </Text>
+              </Button>
+            </View>
+          )}
+
+          <View className="mt-6 w-full">
             <JourneyProgressHeader
               onPress={() => setWeekCompleteOpen(true)}
-              progress={86}
-              week={1}
+              progress={progressPercentage}
+              week={status?.currentWeek || 1}
             />
           </View>
 
-          <View className="mt-[18px] h-[581px] w-[170px]">
-            {DAYS.map((day) => (
-              <JourneyDayNode
-                day={day.day}
-                image={day.image}
-                key={day.day}
-                onPress={() => handleDayPress(day)}
-                status={day.status}
-                style={day.style}
-              />
-            ))}
-          </View>
+          {isLoading ? (
+            <View className="mt-12 items-center">
+              <ActivityIndicator size="large" color="#3B82F6" />
+              <Text className="font-poppins text-sm text-neutral-600 mt-2">
+                Memuat Peta Perjalanan...
+              </Text>
+            </View>
+          ) : (
+            <View
+              className="mt-[18px] w-[170px]"
+              style={{ height: Math.max(500, daysList.length * 118) }}
+            >
+              {daysList.map((day) => (
+                <JourneyDayNode
+                  day={day.day}
+                  image={day.image}
+                  key={day.day}
+                  onPress={() => handleDayPress(day.day, day.status)}
+                  status={day.status}
+                  style={day.style}
+                />
+              ))}
+            </View>
+          )}
         </ScrollView>
       </SafeAreaView>
 
+      {/* Sheet Misi Hari */}
       <JourneyDaySheet
-        day={activeSheet?.day ?? 1}
+        day={activeSheet?.day ?? status?.currentDay ?? 1}
         mode={activeSheet?.mode ?? "tasks"}
         onClose={closeDaySheet}
         onDismiss={() => setActiveSheet(null)}
         onStart={startTraining}
         ref={daySheetRef}
-        week={1}
+        week={status?.currentWeek || 1}
+        missionsData={selectedDayData?.missions}
       />
 
       <JourneyWeekCompleteDialog
         onContinue={() => setWeekCompleteOpen(false)}
         onOpenChange={setWeekCompleteOpen}
         open={weekCompleteOpen}
-        week={1}
+        week={status?.currentWeek || 1}
       />
+
+      {/* Modal Prompt Mood Check Required */}
+      {moodAlertOpen && (
+        <View className="absolute inset-0 bg-black/40 items-center justify-center p-6 z-50">
+          <View className="bg-white rounded-2xl p-6 w-full items-center">
+            <Text className="font-feather-bold text-xl text-primary-300 text-center">
+              Isi Mood Check Terlebih Dahulu! 🌿
+            </Text>
+            <Text className="font-poppins text-neutral-700 text-center text-sm mt-2 leading-5">
+              Untuk memastikan latihan hari ini aman dan sesuai dengan kondisimu, silakan catat Jurnal Mood harianmu terlebih dahulu.
+            </Text>
+            <Button
+              className="mt-6 bg-primary-300 w-full h-12 rounded-xl justify-center items-center"
+              onPress={() => {
+                setMoodAlertOpen(false);
+                router.push("/dashboard");
+              }}
+            >
+              <Text className="text-white font-poppins-semibold text-base">
+                Isi Mood Check Sekarang
+              </Text>
+            </Button>
+          </View>
+        </View>
+      )}
     </View>
   );
 }
