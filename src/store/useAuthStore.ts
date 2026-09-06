@@ -23,7 +23,7 @@ interface AuthState {
   fetchProfile: () => Promise<boolean>;
   updateProfile: (payload: UpdateUserProfilePayload) => Promise<boolean>;
   changePassword: (payload: ChangePasswordPayload) => Promise<boolean>;
-  logout: () => void;
+  logout: (customError?: string) => void;
   clearError: () => void;
   clearProfileError: () => void;
   clearPasswordError: () => void;
@@ -161,12 +161,12 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      logout: () => {
+      logout: (customError?: string) => {
         set({
           user: null,
           token: null,
           isAuthenticated: false,
-          error: null,
+          error: customError || null,
           isProfileLoading: false,
           isProfileUpdating: false,
           profileError: null,
