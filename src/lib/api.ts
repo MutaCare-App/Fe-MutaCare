@@ -29,6 +29,13 @@ export interface ApiEnvelope<T = unknown> {
   };
 }
 
+export type AuthErrorHandler = (errorMessage?: string) => void;
+let authErrorHandler: AuthErrorHandler | null = null;
+
+export function registerAuthErrorHandler(handler: AuthErrorHandler) {
+  authErrorHandler = handler;
+}
+
 export async function apiFetch<T>(
   endpoint: string,
   options: RequestInit = {},
@@ -54,6 +61,18 @@ export async function apiFetch<T>(
     const data: ApiEnvelope<T> = await response.json();
 
     if (!response.ok || !data.success) {
+      const isAuthError =
+        response.status === 401 ||
+        (typeof data?.message === 'string' &&
+          data.message.toLowerCase().includes('authentication token'));
+
+      const isAuthEndpoint =
+        endpoint.includes('/auth/login') || endpoint.includes('/auth/register');
+
+      if (isAuthError && !isAuthEndpoint && authErrorHandler) {
+        authErrorHandler('Sesi Anda telah berakhir. Silakan masuk kembali.');
+      }
+
       const errorMessage = data.message || `HTTP ${response.status} Request failed`;
       throw new Error(errorMessage);
     }

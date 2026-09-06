@@ -35,7 +35,7 @@ const getDynamicStreakDays = (streak: number): DayStreak[] => {
 
 interface DashboardHeaderProps {
   userName?: string;
-  avatarUrl?: string | ImageSourcePropType;
+  avatarUrl?: string | ImageSourcePropType | null;
   currentStreak?: number;
   maxStreak?: number;
 }
@@ -50,11 +50,8 @@ export function DashboardHeader({
 
   const streakDays = getDynamicStreakDays(currentStreak);
 
-  const imageSource = avatarUrl
-    ? typeof avatarUrl === "string"
-      ? { uri: avatarUrl }
-      : avatarUrl
-    : DEFAULT_AVATAR;
+  const hasAvatar =
+    typeof avatarUrl === "string" ? avatarUrl.trim().length > 0 : Boolean(avatarUrl);
 
   const handleOpenStreakSheet = () => {
     streakSheetRef.current?.present();

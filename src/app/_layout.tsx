@@ -1,4 +1,4 @@
-import { Stack } from "expo-router";
+import { Stack, router } from "expo-router";
 import { configureReanimatedLogger, ReanimatedLogLevel } from "react-native-reanimated";
 import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "expo-font";
@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { PortalHost } from "@rn-primitives/portal";
+import { registerAuthErrorHandler } from "@/lib/api";
 import "../../global.css";
 
 configureReanimatedLogger({
@@ -18,6 +19,22 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
+
+  useEffect(() => {
+    let isHandlingAuthError = false;
+
+    registerAuthErrorHandler((msg) => {
+      if (isHandlingAuthError) return;
+      isHandlingAuthError = true;
+
+      useAuthStore.getState().logout(msg || "Sesi Anda telah berakhir. Silakan masuk kembali.");
+      router.replace("/auth/login");
+
+      setTimeout(() => {
+        isHandlingAuthError = false;
+      }, 1500);
+    });
+  }, []);
   const [loaded, error] = useFonts({
     "Feather Bold": require("../../assets/fonts/Feather Bold.ttf"),
     "Poppins-Black": require("../../assets/fonts/Poppins-Black.ttf"),
