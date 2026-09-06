@@ -72,8 +72,9 @@ export async function apiFetch<T>(
           data.message.toLowerCase().includes('authentication token'));
 
       const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+      const pathname = cleanEndpoint.split('?')[0];
       const isAuthEndpoint =
-        cleanEndpoint === '/auth/login' || cleanEndpoint === '/auth/register';
+        pathname === '/auth/login' || pathname === '/auth/register';
 
       if (isAuthError && !isAuthEndpoint && authErrorHandler) {
         authErrorHandler(data?.message || 'Sesi Anda telah berakhir. Silakan masuk kembali.');
