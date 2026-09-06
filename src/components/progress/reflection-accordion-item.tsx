@@ -45,7 +45,7 @@ export function ReflectionAccordionItem({
 
       {isOpen && (
         <View className="pb-3.5 pt-0.5">
-          <Text className="font-poppins text-xs text-neutral-600 italic leading-5">
+          <Text className="font-poppins text-base text-neutral-600 italic leading-5">
             {item.note || "Belum ada catatan refleksi untuk hari ini."}
           </Text>
         </View>

@@ -15,12 +15,12 @@ interface ProgressSummaryCardProps {
 export function ProgressSummaryCard({ item }: ProgressSummaryCardProps) {
   return (
     <View className="flex-1 min-w-[45%] flex-row items-center gap-3 rounded-2xl border border-neutral-200 bg-white p-3.5 shadow-sm shadow-black/5">
-      <View className="h-10 w-10 rounded-full bg-emerald-50 border border-emerald-100 items-center justify-center">
+      <View className="h-10 w-10 rounded-full bg-white border-[0.5px] border-neutral-300 items-center justify-center">
         {item.icon}
       </View>
       <View className="flex-1">
         <Text className="font-poppins text-xs text-neutral-500">{item.label}</Text>
-        <Text className="font-poppins-bold text-base text-neutral-800 mt-0.5">
+        <Text className="font-poppins-bold text-base text-neutral-700 ">
           {item.value}
         </Text>
       </View>
