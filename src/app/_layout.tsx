@@ -34,6 +34,10 @@ export default function RootLayout() {
         isHandlingAuthError = false;
       }, 1500);
     });
+
+    return () => {
+      registerAuthErrorHandler(null);
+    };
   }, []);
   const [loaded, error] = useFonts({
     "Feather Bold": require("../../assets/fonts/Feather Bold.ttf"),

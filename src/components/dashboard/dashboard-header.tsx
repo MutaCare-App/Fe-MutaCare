@@ -53,6 +53,12 @@ export function DashboardHeader({
   const hasAvatar =
     typeof avatarUrl === "string" ? avatarUrl.trim().length > 0 : Boolean(avatarUrl);
 
+  const imageSource = hasAvatar
+    ? typeof avatarUrl === "string"
+      ? { uri: avatarUrl.trim() }
+      : avatarUrl
+    : DEFAULT_AVATAR;
+
   const handleOpenStreakSheet = () => {
     streakSheetRef.current?.present();
   };
@@ -65,14 +71,7 @@ export function DashboardHeader({
           <Avatar alt={`${userName}'s avatar`} className="size-16 border-2 border-white">
             {hasAvatar ? (
               <>
-                <AvatarImage
-                  source={
-                    typeof avatarUrl === "string"
-                      ? { uri: avatarUrl.trim() }
-                      : avatarUrl!
-                    
-                  }
-                />
+                <AvatarImage source={imageSource} />
                 <AvatarFallback className="border-2 border-white">
                   <Image
                     source={DEFAULT_AVATAR}

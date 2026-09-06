@@ -32,7 +32,7 @@ export interface ApiEnvelope<T = unknown> {
 export type AuthErrorHandler = (errorMessage?: string) => void;
 let authErrorHandler: AuthErrorHandler | null = null;
 
-export function registerAuthErrorHandler(handler: AuthErrorHandler) {
+export function registerAuthErrorHandler(handler: AuthErrorHandler | null) {
   authErrorHandler = handler;
 }
 
