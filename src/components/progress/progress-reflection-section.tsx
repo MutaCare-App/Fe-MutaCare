@@ -22,7 +22,7 @@ export function ProgressReflectionSection({
       {/* Left Card: Refleksi Terakhir */}
       <View className="flex-1 rounded-2xl border border-neutral-200 bg-white p-4 justify-between shadow-sm shadow-black/5">
         <Text className="font-poppins text-xs text-neutral-500">Refleksi Terakhir</Text>
-        <Text className="font-poppins-semibold text-sm leading-5 text-neutral-800 italic mt-2">
+        <Text className="font-poppins-medium-italic text-sm leading-5 text-neutral-800  mt-2">
           {lastReflection}
         </Text>
       </View>
