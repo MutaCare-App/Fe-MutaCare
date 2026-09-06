@@ -72,7 +72,7 @@ export async function apiFetch<T>(
           data.message.toLowerCase().includes('authentication token'));
 
       const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-      const pathname = cleanEndpoint.split('?')[0];
+      const pathname = cleanEndpoint.split('?')[0].replace(/\/+$/, '') || '/';
       const isAuthEndpoint =
         pathname === '/auth/login' || pathname === '/auth/register';
 

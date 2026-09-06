@@ -50,8 +50,14 @@ export function DashboardHeader({
 
   const streakDays = getDynamicStreakDays(currentStreak);
 
-  const hasAvatar =
-    typeof avatarUrl === "string" ? avatarUrl.trim().length > 0 : Boolean(avatarUrl);
+  const hasAvatar = Boolean(
+    avatarUrl &&
+      (typeof avatarUrl === "string"
+        ? avatarUrl.trim().length > 0
+        : typeof avatarUrl === "object" && "uri" in avatarUrl
+          ? typeof avatarUrl.uri === "string" && avatarUrl.uri.trim().length > 0
+          : true)
+  );
 
   const imageSource = hasAvatar
     ? typeof avatarUrl === "string"
