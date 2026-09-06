@@ -22,6 +22,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     let isHandlingAuthError = false;
+    let timerId: ReturnType<typeof setTimeout> | undefined;
 
     registerAuthErrorHandler((msg) => {
       if (isHandlingAuthError) return;
@@ -30,12 +31,13 @@ export default function RootLayout() {
       useAuthStore.getState().logout(msg || "Sesi Anda telah berakhir. Silakan masuk kembali.");
       router.replace("/auth/login");
 
-      setTimeout(() => {
+      timerId = setTimeout(() => {
         isHandlingAuthError = false;
       }, 1500);
     });
 
     return () => {
+      if (timerId) clearTimeout(timerId);
       registerAuthErrorHandler(null);
     };
   }, []);

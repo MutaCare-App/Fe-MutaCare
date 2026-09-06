@@ -58,26 +58,32 @@ export async function apiFetch<T>(
       headers,
     });
 
-    const data: ApiEnvelope<T> = await response.json();
+    let data: ApiEnvelope<T> | null = null;
+    try {
+      data = await response.json();
+    } catch {
+      // JSON parsing failed (e.g. HTML or empty body)
+    }
 
-    if (!response.ok || !data.success) {
+    if (!response.ok || !data?.success) {
       const isAuthError =
         response.status === 401 ||
         (typeof data?.message === 'string' &&
           data.message.toLowerCase().includes('authentication token'));
 
+      const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
       const isAuthEndpoint =
-        endpoint.includes('/auth/login') || endpoint.includes('/auth/register');
+        cleanEndpoint === '/auth/login' || cleanEndpoint === '/auth/register';
 
       if (isAuthError && !isAuthEndpoint && authErrorHandler) {
-        authErrorHandler('Sesi Anda telah berakhir. Silakan masuk kembali.');
+        authErrorHandler(data?.message || 'Sesi Anda telah berakhir. Silakan masuk kembali.');
       }
 
-      const errorMessage = data.message || `HTTP ${response.status} Request failed`;
+      const errorMessage = data?.message || `HTTP ${response.status} Request failed`;
       throw new Error(errorMessage);
     }
 
-    return data;
+    return data as ApiEnvelope<T>;
   } catch (error: unknown) {
     if (error instanceof Error) {
       throw error;
