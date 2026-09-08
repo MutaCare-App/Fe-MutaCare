@@ -41,6 +41,21 @@ export default function RelaxationIntroScreen() {
     if (relMission && token && relMission.status !== "completed") {
       await completeMission(relMission.id, {}, token);
     }
+    const missions = selectedDayData?.missions || [];
+    const cbtMission = missions.find(
+      (m) => (m.missionType === "cbt" || m.missionType === "guided_practice") && m.status !== "completed"
+    );
+    if (cbtMission) {
+      router.push("/cbt");
+      return;
+    }
+    const simMission = missions.find(
+      (m) => (m.missionType === "simulation" || m.missionType === "vocal") && m.status !== "completed"
+    );
+    if (simMission) {
+      router.push("/simulation");
+      return;
+    }
     router.push("/reflection");
   };
 

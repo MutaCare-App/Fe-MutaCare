@@ -1,5 +1,6 @@
 import { MoodService } from "@/services/moodService";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useDailyPracticeStore } from "@/store/useDailyPracticeStore";
 import { useJourneyStore } from "@/store/useJourneyStore";
 import { MoodItem, useMoodStore } from "@/store/useMoodStore";
 import { MoodCheckResult } from "./mood-check/mood-check-result";
@@ -13,8 +14,14 @@ export function MoodCheckCard({
   const { selectedMood, setMood } = useMoodStore();
   const token = useAuthStore((state) => state.token);
   const { status, fetchJourneyStatus } = useJourneyStore();
+  const { tasks, isFinished } = useDailyPracticeStore();
+
+  const completedCount = tasks.filter((t) => t.completed).length;
+  const totalCount = tasks.length;
+  const allTasksDone = isFinished || (totalCount > 0 && completedCount === totalCount);
 
   const handleSelectMood = async (mood: MoodItem) => {
+    if (allTasksDone) return;
     setMood(mood);
     onSelectMood?.(mood);
 
@@ -36,6 +43,7 @@ export function MoodCheckCard({
       <MoodCheckResult
         selectedMood={selectedMood}
         onSelectMood={handleSelectMood}
+        isEditable={!allTasksDone}
       />
     );
   }

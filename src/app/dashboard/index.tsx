@@ -4,19 +4,30 @@ import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { MoodCheckCard } from "@/components/dashboard/mood-check-card";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useJourneyStore } from "@/store/useJourneyStore";
+import { useDailyPracticeStore } from "@/store/useDailyPracticeStore";
 import { ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function DashboardScreen() {
   const user = useAuthStore((state) => state.user);
   const token = useAuthStore((state) => state.token);
-  const fetchJourneyStatus = useJourneyStore((state) => state.fetchJourneyStatus);
+  const fetchProfile = useAuthStore((state) => state.fetchProfile);
+  const { status, fetchJourneyStatus } = useJourneyStore();
+  const { tasks, isFinished } = useDailyPracticeStore();
 
   useEffect(() => {
     if (token) {
       void fetchJourneyStatus(token);
+      void fetchProfile();
     }
-  }, [token, fetchJourneyStatus]);
+  }, [token, fetchJourneyStatus, fetchProfile]);
+
+  const completedCount = tasks.filter((t) => t.completed).length;
+  const totalCount = tasks.length;
+  const allTasksDone = isFinished || (totalCount > 0 && completedCount === totalCount);
+
+  const currentStreak = status?.streakCount ?? user?.currentStreak ?? 0;
+  const maxStreak = Math.max(user?.longestStreak ?? 0, currentStreak);
 
   return (
     <View style={{ flex: 1, backgroundColor: "#FAFAFA" }}>
@@ -33,9 +44,10 @@ export default function DashboardScreen() {
           {/* Header & Streak */}
           <DashboardHeader
             avatarUrl={user?.avatarUrl ?? undefined}
-            currentStreak={user?.currentStreak}
-            maxStreak={user?.longestStreak}
+            currentStreak={currentStreak}
+            maxStreak={maxStreak}
             userName={user?.nickname || user?.fullName}
+            isTodayCompleted={allTasksDone}
           />
 
           {/* Body Content Cards */}

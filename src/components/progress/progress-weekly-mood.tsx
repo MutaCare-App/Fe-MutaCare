@@ -54,38 +54,68 @@ function isMoodType(val: string): val is MoodType {
   return val in MOOD_CONFIG;
 }
 
-interface DayMood {
+export interface DayMood {
   day: string;
   image: ImageSourcePropType;
   isActiveDay?: boolean;
   isToday?: boolean;
 }
 
-const WEEKLY_DAYS: DayMood[] = [
-  { day: "Senin", image: MOOD_IMAGES.veryBad, isActiveDay: true },
-  { day: "Selasa", image: MOOD_IMAGES.bad, isActiveDay: true },
-  { day: "Rabu", image: MOOD_IMAGES.neutral, isActiveDay: true },
-  { day: "Kamis", image: MOOD_IMAGES.good, isActiveDay: true },
-  { day: "Jumat", image: MOOD_IMAGES.veryGood, isActiveDay: true, isToday: true },
+const DEFAULT_WEEKLY_DAYS: DayMood[] = [
+  { day: "Senin", image: MOOD_IMAGES.neutral, isActiveDay: false },
+  { day: "Selasa", image: MOOD_IMAGES.neutral, isActiveDay: false },
+  { day: "Rabu", image: MOOD_IMAGES.neutral, isActiveDay: false },
+  { day: "Kamis", image: MOOD_IMAGES.neutral, isActiveDay: false },
+  { day: "Jumat", image: MOOD_IMAGES.neutral, isActiveDay: false },
   { day: "Sabtu", image: MOOD_IMAGES.neutral, isActiveDay: false },
   { day: "Minggu", image: MOOD_IMAGES.neutral, isActiveDay: false },
 ];
 
 export interface ProgressWeeklyMoodProps {
-  todayMood?: MoodType;
+  todayMood?: MoodType | null;
+  weeklyData?: DayMood[];
+  currentWeek?: number;
+  maxWeek?: number;
+  onWeekChange?: (week: number) => void;
+  dominantMood?: string | null;
+  insightText?: string;
 }
 
-export function ProgressWeeklyMood({ todayMood }: ProgressWeeklyMoodProps = {}) {
-  const [week, setWeek] = useState(2);
+export function ProgressWeeklyMood({
+  todayMood,
+  weeklyData,
+  currentWeek = 1,
+  maxWeek = 4,
+  onWeekChange,
+  dominantMood,
+  insightText,
+}: ProgressWeeklyMoodProps = {}) {
+  const [internalWeek, setInternalWeek] = useState(currentWeek);
   const storeMood = useMoodStore((state) => state.selectedMood);
 
-  const activeMood: MoodType =
-    todayMood ??
-    (storeMood?.label && isMoodType(storeMood.label)
-      ? (storeMood.label as MoodType)
-      : "Sangat Baik");
+  const displayWeek = currentWeek ?? internalWeek;
 
-  const currentMoodConfig = MOOD_CONFIG[activeMood] ?? MOOD_CONFIG["Sangat Baik"];
+  const handlePrevWeek = () => {
+    const nextWeek = Math.max(1, displayWeek - 1);
+    setInternalWeek(nextWeek);
+    onWeekChange?.(nextWeek);
+  };
+
+  const handleNextWeek = () => {
+    const nextWeek = Math.min(maxWeek, displayWeek + 1);
+    setInternalWeek(nextWeek);
+    onWeekChange?.(nextWeek);
+  };
+
+  const activeMood: MoodType | null =
+    todayMood !== undefined
+      ? todayMood
+      : storeMood?.label && isMoodType(storeMood.label)
+      ? (storeMood.label as MoodType)
+      : null;
+
+  const currentMoodConfig = activeMood ? MOOD_CONFIG[activeMood] : null;
+  const daysToRender = weeklyData && weeklyData.length > 0 ? weeklyData : DEFAULT_WEEKLY_DAYS;
 
   return (
     <View className="gap-3">
@@ -97,7 +127,7 @@ export function ProgressWeeklyMood({ todayMood }: ProgressWeeklyMoodProps = {}) 
 
         {/* Days Row */}
         <View className="flex-row items-end justify-between px-1">
-          {WEEKLY_DAYS.map((item) => (
+          {daysToRender.map((item) => (
             <View
               key={item.day}
               className={`items-center justify-center ${
@@ -107,14 +137,14 @@ export function ProgressWeeklyMood({ todayMood }: ProgressWeeklyMoodProps = {}) 
               }`}
             >
               <Image
-                source={item.isToday ? currentMoodConfig.image : item.image}
-                className={`h-8 w-8 ${item.isActiveDay ? "" : "opacity-30"}`}
+                source={item.image}
+                className={`h-8 w-8 ${item.isActiveDay ? "" : "opacity-25"}`}
                 resizeMode="contain"
               />
               <Text
                 className={`font-poppins text-[11px] mt-1 ${
                   item.isToday
-                    ? "font-poppins text-neutral-800"
+                    ? "font-poppins-semibold text-neutral-800"
                     : "text-neutral-600"
                 }`}
               >
@@ -127,8 +157,9 @@ export function ProgressWeeklyMood({ todayMood }: ProgressWeeklyMoodProps = {}) 
         {/* Pagination Controls */}
         <View className="flex-row items-center justify-center mt-4 pt-1">
           <Pressable
-            onPress={() => setWeek((w) => Math.max(1, w - 1))}
-            className="p-1 active:opacity-60"
+            onPress={handlePrevWeek}
+            disabled={displayWeek <= 1}
+            className={`p-1 active:opacity-60 ${displayWeek <= 1 ? "opacity-30" : ""}`}
             hitSlop={8}
             accessibilityLabel="Minggu Sebelumnya"
           >
@@ -136,12 +167,13 @@ export function ProgressWeeklyMood({ todayMood }: ProgressWeeklyMoodProps = {}) 
           </Pressable>
 
           <Text className="font-poppins text-xs text-neutral-700 mx-5">
-            Minggu Ke {week}
+            Minggu Ke {displayWeek}
           </Text>
 
           <Pressable
-            onPress={() => setWeek((w) => w + 1)}
-            className="p-1 active:opacity-60"
+            onPress={handleNextWeek}
+            disabled={displayWeek >= maxWeek}
+            className={`p-1 active:opacity-60 ${displayWeek >= maxWeek ? "opacity-30" : ""}`}
             hitSlop={8}
             accessibilityLabel="Minggu Selanjutnya"
           >
@@ -158,25 +190,32 @@ export function ProgressWeeklyMood({ todayMood }: ProgressWeeklyMoodProps = {}) 
             Mood Hari Ini
           </Text>
           <Image
-            source={currentMoodConfig.image}
-            className="h-12 w-12"
+            source={currentMoodConfig ? currentMoodConfig.image : MOOD_IMAGES.neutral}
+            className={`h-12 w-12 ${currentMoodConfig ? "" : "opacity-40"}`}
             resizeMode="contain"
           />
           <Text className="font-poppins-bold text-base text-neutral-800 text-center mt-1.5">
-            {currentMoodConfig.label}
+            {currentMoodConfig ? currentMoodConfig.label : "Belum Dicatat"}
           </Text>
         </View>
 
         {/* Right: Insight */}
         <View className="flex-1 rounded-2xl border border-neutral-200 bg-white p-4 justify-center shadow-sm shadow-black/5">
-          <Text className="font-poppins-medium-italic text-sm leading-5 text-neutral-800 ">
-            “Dalam Minggu Ini, Kamu Lebih Sering Merasa{" "}
-            <Text className="font-poppins-bold-italic text-brand-accent">Baik</Text>”
-          </Text>
+          {dominantMood ? (
+            <Text className="font-poppins-medium-italic text-sm leading-5 text-neutral-800 ">
+              “Dalam Minggu Ini, Kamu Lebih Sering Merasa{" "}
+              <Text className="font-poppins-bold-italic text-brand-accent">{dominantMood}</Text>”
+            </Text>
+          ) : (
+            <Text className="font-poppins-medium-italic text-xs leading-5 text-neutral-600">
+              {insightText || "“Yuk catat mood harianmu untuk melihat perkembangan perasaanmu.”"}
+            </Text>
+          )}
         </View>
       </View>
     </View>
   );
 }
 
+export { MOOD_IMAGES };
 export default ProgressWeeklyMood;

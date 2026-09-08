@@ -97,7 +97,26 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
     set({ isSubmitting: true, error: null });
     try {
       const result = await JourneyService.completeMission(missionId, payload, token);
-      set({ isSubmitting: false });
+      
+      const currentDayData = get().selectedDayData;
+      if (currentDayData) {
+        const updatedMissions = currentDayData.missions.map((m) =>
+          m.id === missionId ? { ...m, status: 'completed' as const } : m
+        );
+        set({
+          isSubmitting: false,
+          selectedDayData: {
+            ...currentDayData,
+            missions: updatedMissions,
+          },
+        });
+        if (currentDayData.dayNumber) {
+          void get().fetchDayMissions(currentDayData.dayNumber, token);
+        }
+      } else {
+        set({ isSubmitting: false });
+      }
+
       // Refresh journey status & auth profile after completing a mission
       void get().fetchJourneyStatus(token);
       void useAuthStore.getState().fetchProfile();
