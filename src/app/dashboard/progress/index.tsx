@@ -10,7 +10,7 @@ import { useRouter } from "expo-router";
 import { BarbellIcon } from "phosphor-react-native/src/icons/Barbell";
 import { CalendarDotsIcon } from "phosphor-react-native/src/icons/CalendarDots";
 import { ClockCounterClockwiseIcon } from "phosphor-react-native/src/icons/ClockCounterClockwise";
-import { FlameIcon } from "phosphor-react-native/src/icons/Flame";
+import { FireIcon } from "phosphor-react-native/src/icons/Fire";
 import { PlantIcon } from "phosphor-react-native/src/icons/Plant";
 import { SmileyIcon } from "phosphor-react-native/src/icons/Smiley";
 import { SquaresFourIcon } from "phosphor-react-native/src/icons/SquaresFour";
@@ -19,7 +19,7 @@ import { ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 iconWithClassName(SquaresFourIcon);
-iconWithClassName(FlameIcon);
+iconWithClassName(FireIcon);
 iconWithClassName(PlantIcon);
 iconWithClassName(BarbellIcon);
 iconWithClassName(CalendarDotsIcon);
@@ -40,7 +40,7 @@ export default function ProgressScreen() {
     {
       label: "Streak",
       value: `${streakDays} Hari`,
-      icon: <FlameIcon size={20} className="text-primary-300" weight="fill" />,
+      icon: <FireIcon size={20} className="text-primary-300" weight="fill" />,
     },
     {
       label: "Week 1",
@@ -50,12 +50,12 @@ export default function ProgressScreen() {
     {
       label: "Latihan",
       value: "5 Latihan",
-      icon: <BarbellIcon size={20} className="text-primary-300" weight="bold" />,
+      icon: <BarbellIcon size={20} className="text-primary-300" weight="fill" />,
     },
     {
       label: "Hari Aktif",
       value: "5 Hari",
-      icon: <CalendarDotsIcon size={20} className="text-primary-300" weight="bold" />,
+      icon: <CalendarDotsIcon size={20} className="text-primary-300" weight="fill" />,
     },
   ];
 
@@ -84,7 +84,7 @@ export default function ProgressScreen() {
           <View className="gap-3">
             <ProgressSectionHeader
               title="Ringkasan"
-              icon={<SquaresFourIcon size={18} className="text-amber-500" weight="fill" />}
+              icon={<SquaresFourIcon size={20} className="text-brand-accent" weight="fill" />}
             />
             <View className="flex-row flex-wrap justify-between gap-3">
               {summaryItems.map((item, index) => (
@@ -97,7 +97,7 @@ export default function ProgressScreen() {
           <View className="gap-3">
             <ProgressSectionHeader
               title="Riwayat Refleksi"
-              icon={<ClockCounterClockwiseIcon size={18} className="text-amber-500" weight="bold" />}
+              icon={<ClockCounterClockwiseIcon size={20} className="text-brand-accent" weight="bold" />}
             />
             <ProgressReflectionSection
               lastReflection={lastReflectionText}
