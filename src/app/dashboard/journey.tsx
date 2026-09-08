@@ -93,18 +93,37 @@ export default function JourneyScreen() {
   const startTraining = () => {
     closeDaySheet();
     const relMode = selectedDayData?.relaxationMode;
-    const relMission = selectedDayData?.missions?.find((m) => m.missionType === "relaxation");
+    const missions = selectedDayData?.missions || [];
 
-    if (
+    const relMission = missions.find((m) => m.missionType === "relaxation");
+    const isRelDoneOrSkipped =
       relMode === "skipped" ||
       relMission?.isSkipped ||
       relMission?.status === "completed" ||
-      relMission?.status === "skipped"
-    ) {
-      router.push("/reflection");
-    } else {
+      relMission?.status === "skipped";
+
+    if (!isRelDoneOrSkipped) {
       router.push("/relaxation");
+      return;
     }
+
+    const cbtMission = missions.find(
+      (m) => (m.missionType === "cbt" || m.missionType === "guided_practice") && m.status !== "completed"
+    );
+    if (cbtMission) {
+      router.push("/cbt");
+      return;
+    }
+
+    const simMission = missions.find(
+      (m) => (m.missionType === "simulation" || m.missionType === "vocal") && m.status !== "completed"
+    );
+    if (simMission) {
+      router.push("/simulation");
+      return;
+    }
+
+    router.push("/reflection");
   };
 
   const progressPercentage = status

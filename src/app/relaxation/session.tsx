@@ -152,6 +152,26 @@ export default function RelaxationSessionScreen() {
   const relMission = selectedDayData?.missions?.find((m) => m.missionType === "relaxation");
   const isOptional = selectedDayData?.relaxationMode === "optional" || relMission?.isOptional;
 
+  const getNextStageRoute = () => {
+    const missions = selectedDayData?.missions || [];
+    const cbtMission = missions.find(
+      (m) => (m.missionType === "cbt" || m.missionType === "guided_practice") && m.status !== "completed"
+    );
+    if (cbtMission) return "/cbt";
+
+    const simMission = missions.find(
+      (m) => (m.missionType === "simulation" || m.missionType === "vocal") && m.status !== "completed"
+    );
+    if (simMission) return "/simulation";
+
+    const refMission = missions.find(
+      (m) => m.missionType === "reflection" && m.status !== "completed"
+    );
+    if (refMission) return "/reflection";
+
+    return "/dashboard/journey";
+  };
+
   const handleSkip = async () => {
     try {
       player?.pause();
@@ -163,7 +183,7 @@ export default function RelaxationSessionScreen() {
       await completeMission(relMission.id, {}, token);
     }
 
-    router.replace("/reflection");
+    router.replace(getNextStageRoute() as any);
   };
 
   return (
@@ -235,7 +255,7 @@ export default function RelaxationSessionScreen() {
 
       <RelaxationCompleteModal
         onBack={handleBack}
-        onContinue={() => router.replace("/dashboard/journey")}
+        onContinue={() => router.replace(getNextStageRoute() as any)}
         visible={isComplete}
       />
     </View>
