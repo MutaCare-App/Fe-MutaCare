@@ -10,12 +10,16 @@ import { PortalHost } from "@rn-primitives/portal";
 import { registerAuthErrorHandler } from "@/lib/api";
 import "../../global.css";
 
-configureReanimatedLogger({
-  level: ReanimatedLogLevel.warn,
-  strict: false,
-});
+try {
+  configureReanimatedLogger({
+    level: ReanimatedLogLevel.warn,
+    strict: false,
+  });
+} catch {
+  // Silent catch in release mode
+}
 
-SplashScreen.preventAutoHideAsync();
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
@@ -65,9 +69,19 @@ export default function RootLayout() {
 
   useEffect(() => {
     if ((loaded || error) && hasHydrated) {
-      SplashScreen.hideAsync();
+      SplashScreen.hideAsync().catch(() => {});
     }
   }, [loaded, error, hasHydrated]);
+
+  // Safety fallback: ensure splash screen hides even if hydration or font loading takes too long
+  useEffect(() => {
+    const safetyTimer = setTimeout(() => {
+      useAuthStore.getState().setHasHydrated(true);
+      SplashScreen.hideAsync().catch(() => {});
+    }, 2500);
+
+    return () => clearTimeout(safetyTimer);
+  }, []);
 
   if ((!loaded && !error) || !hasHydrated) {
     return null;
