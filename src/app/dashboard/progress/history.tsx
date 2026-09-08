@@ -3,23 +3,38 @@ import ReflectionAccordionItem, {
 } from "@/components/progress/reflection-accordion-item";
 import { Text } from "@/components/ui/text";
 import { iconWithClassName } from "@/lib/iconWithClassName";
-import { useReflectionStore } from "@/store/useReflectionStore";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useProgressStore } from "@/store/useProgressStore";
 import { useRouter } from "expo-router";
 import { CaretLeftIcon } from "phosphor-react-native/src/icons/CaretLeft";
-import React, { useState } from "react";
-import { Pressable, ScrollView, View } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 iconWithClassName(CaretLeftIcon);
 
 export default function ReflectionHistoryScreen() {
   const router = useRouter();
-  const reflectionNote = useReflectionStore((state) => state.note);
+  const token = useAuthStore((state) => state.token);
+  const { reflections, summary, isLoadingReflections, fetchReflections } = useProgressStore();
 
-  // Day 5 is open by default as shown in the design mockup
-  const [openDays, setOpenDays] = useState<Record<number, boolean>>({
-    5: true,
-  });
+  const [openDays, setOpenDays] = useState<Record<number, boolean>>({});
+
+  useEffect(() => {
+    if (token) {
+      void fetchReflections(token);
+    }
+  }, [token, fetchReflections]);
+
+  // Default open the latest completed reflection day
+  useEffect(() => {
+    if (reflections && reflections.length > 0) {
+      const latestDay = Math.max(...reflections.map((r) => r.dayNumber));
+      setOpenDays({ [latestDay]: true });
+    } else {
+      setOpenDays({ 1: true });
+    }
+  }, [reflections]);
 
   const toggleDay = (day: number) => {
     setOpenDays((prev) => ({
@@ -28,19 +43,31 @@ export default function ReflectionHistoryScreen() {
     }));
   };
 
-  const day5Note = reflectionNote?.trim()
-    ? `“${reflectionNote.trim()}”`
-    : "“Aku Berhasil Menjawab Guru Hari Ini”";
+  const totalWeeks = Math.max(1, summary?.currentWeek ?? 1);
 
-  const reflectionHistory: ReflectionDayRecord[] = [
-    { dayNumber: 1, label: "Hari Ke 1", note: "“Hari ini aku mulai belajar teknik pernapasan dan merasa lebih tenang.”" },
-    { dayNumber: 2, label: "Hari Ke 2", note: "“Aku mencoba tersenyum kepada teman sebangku saat jam istirahat.”" },
-    { dayNumber: 3, label: "Hari Ke 3", note: "“Berhasil mengucapkan salam kepada satpam sekolah di pagi hari.”" },
-    { dayNumber: 4, label: "Hari Ke 4", note: "“Mampu berbisik pelan ke teman saat berdiskusi kelompok.”" },
-    { dayNumber: 5, label: "Hari Ke 5", note: day5Note },
-    { dayNumber: 6, label: "Hari Ke 6", note: "“Menulis pertanyaan di kertas dan memberikannya ke guru.”" },
-    { dayNumber: 7, label: "Hari Ke 7", note: "“Melakukan refleksi mingguan dan merasa bangga pada diri sendiri.”" },
-  ];
+  // Group days by week
+  const weeksData = useMemo(() => {
+    const weeks: Array<{ weekNumber: number; days: ReflectionDayRecord[] }> = [];
+
+    for (let w = 1; w <= totalWeeks; w++) {
+      const days: ReflectionDayRecord[] = [];
+      const startDay = (w - 1) * 7 + 1;
+      const endDay = w * 7;
+
+      for (let dayNum = startDay; dayNum <= endDay; dayNum++) {
+        const found = reflections.find((r) => r.dayNumber === dayNum);
+        days.push({
+          dayNumber: dayNum,
+          label: `Hari Ke ${dayNum}`,
+          note: found?.note ? `“${found.note.trim()}”` : null,
+        });
+      }
+
+      weeks.push({ weekNumber: w, days });
+    }
+
+    return weeks;
+  }, [totalWeeks, reflections]);
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -65,31 +92,45 @@ export default function ReflectionHistoryScreen() {
           </Text>
         </View>
 
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingHorizontal: 24,
-            paddingBottom: 120,
-            paddingTop: 8,
-          }}
-        >
-          {/* Section: Minggu Ke 1 */}
-          <Text className="font-poppins-bold text-lg text-primary-300 mb-2">
-            Minggu Ke 1
-          </Text>
-
-          {/* Accordion List */}
-          <View>
-            {reflectionHistory.map((item) => (
-              <ReflectionAccordionItem
-                key={item.dayNumber}
-                item={item}
-                isOpen={Boolean(openDays[item.dayNumber])}
-                onToggle={() => toggleDay(item.dayNumber)}
-              />
-            ))}
+        {isLoadingReflections && reflections.length === 0 ? (
+          <View className="flex-1 items-center justify-center py-12">
+            <ActivityIndicator size="small" color="#007799" />
+            <Text className="font-poppins text-xs text-neutral-500 mt-2">
+              Memuat riwayat refleksi...
+            </Text>
           </View>
-        </ScrollView>
+        ) : (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{
+              paddingHorizontal: 24,
+              paddingBottom: 120,
+              paddingTop: 8,
+              gap: 20,
+            }}
+          >
+            {weeksData.map((weekItem) => (
+              <View key={weekItem.weekNumber}>
+                {/* Section: Minggu Ke X */}
+                <Text className="font-poppins-bold text-lg text-primary-300 mb-2">
+                  Minggu Ke {weekItem.weekNumber}
+                </Text>
+
+                {/* Accordion List */}
+                <View>
+                  {weekItem.days.map((item) => (
+                    <ReflectionAccordionItem
+                      key={item.dayNumber}
+                      item={item}
+                      isOpen={Boolean(openDays[item.dayNumber])}
+                      onToggle={() => toggleDay(item.dayNumber)}
+                    />
+                  ))}
+                </View>
+              </View>
+            ))}
+          </ScrollView>
+        )}
       </SafeAreaView>
     </View>
   );

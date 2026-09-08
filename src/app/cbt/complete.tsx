@@ -10,7 +10,7 @@ import { CheckCircleIcon } from 'phosphor-react-native/src/icons/CheckCircle';
 import { HeartIcon } from 'phosphor-react-native/src/icons/Heart';
 import { ArrowRightIcon } from 'phosphor-react-native/src/icons/ArrowRight';
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 iconWithClassName(CheckCircleIcon);
@@ -57,17 +57,34 @@ export default function CBTCompleteScreen() {
           }
         }
       }
+    } else {
+      Alert.alert(
+        'Gagal Menyimpan Evaluasi',
+        'Terjadi kendala saat menyimpan evaluasi sesi CBT. Silakan coba lagi.'
+      );
     }
   };
 
   const handleContinueToReflection = () => {
-    useCBTStore.getState().reset();
-    router.replace('/reflection');
+    try {
+      router.replace('/reflection');
+    } catch {
+      router.push('/reflection');
+    }
+    setTimeout(() => {
+      useCBTStore.getState().reset();
+    }, 400);
   };
 
   const handleReturnToJourney = () => {
-    useCBTStore.getState().reset();
-    router.replace('/dashboard/journey');
+    try {
+      router.replace('/dashboard/journey');
+    } catch {
+      router.push('/dashboard/journey');
+    }
+    setTimeout(() => {
+      useCBTStore.getState().reset();
+    }, 400);
   };
 
   return (

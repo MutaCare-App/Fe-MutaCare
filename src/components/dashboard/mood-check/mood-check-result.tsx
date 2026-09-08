@@ -9,16 +9,19 @@ import { MoodEditSheet } from "./mood-edit-sheet";
 interface MoodCheckResultProps {
   selectedMood: MoodItem;
   onSelectMood?: (mood: MoodItem) => void;
+  isEditable?: boolean;
 }
 
 export function MoodCheckResult({
   selectedMood,
   onSelectMood,
+  isEditable = true,
 }: MoodCheckResultProps) {
   const { setMood } = useMoodStore();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const handleOpenEdit = () => {
+    if (!isEditable) return;
     bottomSheetModalRef.current?.present();
   };
 
@@ -55,15 +58,23 @@ export function MoodCheckResult({
           <Text className="font-poppins text-center text-neutral-700 text-xs">
             Terima Kasih Sudah Berbagi
           </Text>
-          <Pressable
-            onPress={handleOpenEdit}
-            hitSlop={8}
-            className="w-full items-end mt-4"
-          >
-            <Text className="font-poppins-semibold text-brand-accent text-sm">
-              Edit Mood
-            </Text>
-          </Pressable>
+          {isEditable ? (
+            <Pressable
+              onPress={handleOpenEdit}
+              hitSlop={8}
+              className="w-full items-end mt-4"
+            >
+              <Text className="font-poppins-semibold text-brand-accent text-sm">
+                Edit Mood
+              </Text>
+            </Pressable>
+          ) : (
+            <View className="w-full items-center mt-3 pt-2.5 border-t border-neutral-100">
+              <Text className="font-poppins text-neutral-400 text-[11px] text-center">
+                Sesi hari ini selesai • Mood check-in berikutnya besok
+              </Text>
+            </View>
+          )}
         </View>
       </View>
 

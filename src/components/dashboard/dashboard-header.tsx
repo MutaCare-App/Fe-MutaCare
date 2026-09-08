@@ -18,9 +18,10 @@ interface DayStreak {
   active: boolean;
 }
 
-const getDynamicStreakDays = (streak: number): DayStreak[] => {
+const getDynamicStreakDays = (streak: number, isTodayCompleted = false): DayStreak[] => {
   const days = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
-  if (!streak || streak <= 0) {
+  const effectiveStreak = isTodayCompleted ? Math.max(1, streak) : streak;
+  if (!effectiveStreak || effectiveStreak <= 0) {
     return days.map((day) => ({ day, active: false }));
   }
 
@@ -28,7 +29,9 @@ const getDynamicStreakDays = (streak: number): DayStreak[] => {
   const todayIndex = jsDay === 0 ? 6 : jsDay - 1;
 
   return days.map((day, idx) => {
-    const isActive = idx <= todayIndex && (todayIndex - idx) < streak;
+    const isActive =
+      (idx <= todayIndex && (todayIndex - idx) < effectiveStreak) ||
+      (isTodayCompleted && idx === todayIndex);
     return { day, active: isActive };
   });
 };
@@ -38,6 +41,7 @@ interface DashboardHeaderProps {
   avatarUrl?: string | ImageSourcePropType | null;
   currentStreak?: number;
   maxStreak?: number;
+  isTodayCompleted?: boolean;
 }
 
 export function DashboardHeader({
@@ -45,10 +49,13 @@ export function DashboardHeader({
   avatarUrl,
   currentStreak = 0,
   maxStreak = 0,
+  isTodayCompleted = false,
 }: DashboardHeaderProps) {
   const streakSheetRef = useRef<BottomSheetModal>(null);
 
-  const streakDays = getDynamicStreakDays(currentStreak);
+  const effectiveStreak = isTodayCompleted ? Math.max(1, currentStreak) : currentStreak;
+  const effectiveMaxStreak = Math.max(maxStreak, effectiveStreak);
+  const streakDays = getDynamicStreakDays(currentStreak, isTodayCompleted);
 
   const hasAvatar = Boolean(
     avatarUrl &&
@@ -111,7 +118,7 @@ export function DashboardHeader({
         <View className="mt-4">
           <View className="flex-row justify-between items-center mb-2.5">
             <Text className="font-poppins-semibold text-neutral-700 text-sm">
-              Streak Harian ({currentStreak} Hari)
+              Streak Harian ({effectiveStreak} Hari)
             </Text>
             <Pressable onPress={handleOpenStreakSheet} hitSlop={8}>
               <Text className="font-poppins text-neutral-700 text-sm">
@@ -144,8 +151,8 @@ export function DashboardHeader({
       {/* Bottom Sheet Modal Detail Streak */}
       <StreakDetailSheet
         ref={streakSheetRef}
-        currentStreak={currentStreak}
-        maxStreak={maxStreak}
+        currentStreak={effectiveStreak}
+        maxStreak={effectiveMaxStreak}
       />
     </>
   );

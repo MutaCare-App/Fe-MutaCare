@@ -28,10 +28,10 @@ export default function CBTAnalysisScreen() {
   } = useCBTStore();
 
   useEffect(() => {
-    if (!analysisResult) {
+    if (!useCBTStore.getState().analysisResult) {
       router.replace('/cbt');
     }
-  }, [analysisResult]);
+  }, []);
 
   const handleStartSimulation = async () => {
     if (!selectedOption) return;
