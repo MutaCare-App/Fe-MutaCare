@@ -4,11 +4,16 @@
     "slug": "fe-mutacare",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/logo/icon.png",
     "scheme": "femutacare",
     "userInterfaceStyle": "automatic",
     "android": {
       "package": "com.mutacare.app",
       "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/logo/icon.png",
+        "backgroundColor": "#516D47"
+      },
       "predictiveBackGestureEnabled": false,
       "permissions": [
         "RECORD_AUDIO",
@@ -22,13 +27,25 @@
     },
     "web": {
       "output": "static",
-      "bundler": "metro"
+      "bundler": "metro",
+      "favicon": "./assets/logo/icon.png"
     },
     "plugins": [
       "expo-router",
       "expo-font",
       "expo-status-bar",
-      "expo-audio"
+      "expo-audio",
+      "expo-asset",
+      "expo-image",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/logo/icon.png",
+          "imageWidth": 150,
+          "resizeMode": "contain",
+          "backgroundColor": "#516D47"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
