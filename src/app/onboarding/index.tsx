@@ -10,12 +10,10 @@ export default function OnboardingIndex() {
     <LinearGradient colors={["#C2FFC7", "#FFFFFF"]} style={{ flex: 1 }}>
       <SafeAreaView className="p-5" style={{ flex: 1 }}>
         <View className="w-full items-center px-2" style={{ flex: 1 }}>
-          {/* IMAGE + TEXT */}
           <View
             className="w-full flex flex-col items-center justify-center pt-36"
             style={{ flex: 3 }}
           >
-            {/* IMAGE */}
             <View className="items-center justify-center" style={{ height: 200 }}>
               <Image
                 source={require("../../../assets/images/onBoarding-1.png")}
@@ -23,7 +21,6 @@ export default function OnboardingIndex() {
                 resizeMode="contain"
               />
             </View>
-            {/* TEXT */}
             <View className="mt-20 flex flex-col items-center justify-start ">
               <Text className="font-feather-bold text-4xl text-center text-primary-300" >
                 Selamat Datang di{" "}
@@ -36,7 +33,6 @@ export default function OnboardingIndex() {
               </Text>
             </View>
           </View>
-          {/* BUTTON */}
           <View className="w-full justify-end " style={{ flex: 1 }}>
             <Link href="/onboarding/step-2" asChild>
               <Button className="bg-primary-300 w-full h-16 rounded-lg justify-center items-center">

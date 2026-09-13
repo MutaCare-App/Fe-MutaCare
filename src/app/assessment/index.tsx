@@ -9,7 +9,6 @@ import { TimerIcon } from "phosphor-react-native/src/icons/Timer";
 import { Image, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-// Daftarkan icon ke NativeWind
 iconWithClassName(TimerIcon);
 iconWithClassName(LockKeyIcon);
 iconWithClassName(SparkleIcon);
@@ -23,7 +22,6 @@ export default function AssessmentIntro() {
         className="px-8 flex justify-between pb-6"
       >
         <View className="flex w-full items-center">
-          {/* Header Top Bar */}
           <View className="items-center w-full pt-8">
             <Text className="font-feather-bold text-brand-accent text-2xl text-center">
               Asesment
@@ -40,7 +38,6 @@ export default function AssessmentIntro() {
             </View>
           </View>
 
-          {/* Maskot Ilustrasi */}
           <View className="items-center justify-center my-8">
             <Image
               source={require("../../../assets/images/assessment.png")}
@@ -49,7 +46,6 @@ export default function AssessmentIntro() {
             />
           </View>
 
-          {/* Judul & Deskripsi */}
           <View className="items-center px-2">
             <Text className="font-feather-bold text-3xl text-primary-300 text-center">
               Mari Kenali Dirimu
@@ -60,7 +56,6 @@ export default function AssessmentIntro() {
             </Text>
           </View>
 
-          {/* Poin Informasi */}
           <View className="flex gap-3.5 mt-6 w-full px-4">
             <View className="flex-row items-center gap-3">
               <TimerIcon size={24} className="text-primary-300" />
@@ -85,7 +80,6 @@ export default function AssessmentIntro() {
           </View>
         </View>
 
-        {/* Tombol Mulai Asesmen */}
         <View className="w-full pt-4">
           <Link href="/assessment/questions" asChild>
             <Button className="bg-primary-300 w-full h-14 rounded-xl justify-center items-center active:bg-primary-400">

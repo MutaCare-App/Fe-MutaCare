@@ -47,7 +47,6 @@ export default function SimulationIndexScreen() {
           contentContainerClassName="pb-8"
           showsVerticalScrollIndicator={false}
         >
-          {/* Header */}
           <View className="h-12 justify-center">
             <Pressable
               accessibilityLabel="Kembali"
@@ -59,7 +58,6 @@ export default function SimulationIndexScreen() {
             </Pressable>
           </View>
 
-          {/* Title */}
           <View className="mt-2 items-center">
             <View className="size-16 items-center justify-center rounded-full bg-primary-100/60 mb-3">
               <MicrophoneIcon className="text-primary-300" size={34} weight="duotone" />

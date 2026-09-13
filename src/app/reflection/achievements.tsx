@@ -55,6 +55,7 @@ export default function ReflectionAchievementsScreen() {
                   style={{ pointerEvents: "none" }}
                   className="size-[17px] rounded-none border-neutral-300 shadow-none"
                 />
+                
                 <Text className="flex-1 font-poppins text-base leading-[22px] tracking-[0.8px] text-neutral-700">
                   {option}
                 </Text>

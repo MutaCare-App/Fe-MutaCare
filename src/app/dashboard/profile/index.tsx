@@ -93,7 +93,6 @@ export default function ProfileScreen() {
         />
       </View>
 
-      {/* Micro-component Tombol Keluar dengan Dialog Konfirmasi */}
       <ProfileSignoutDialog onConfirmLogout={handleLogout} />
     </ProfileShell>
   );

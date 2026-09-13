@@ -61,7 +61,6 @@ export default function CBTIntroScreen() {
           keyboardDismissMode="on-drag"
           automaticallyAdjustKeyboardInsets={true}
         >
-          {/* Header */}
           <View className="h-12 justify-center">
             <Pressable
               accessibilityLabel="Kembali"
@@ -73,7 +72,6 @@ export default function CBTIntroScreen() {
             </Pressable>
           </View>
 
-          {/* Title */}
           <View className="mt-2 items-center">
             <View className="size-16 items-center justify-center rounded-full bg-primary-100/50 mb-3">
               <BrainIcon className="text-primary-300" size={36} weight="duotone" />
@@ -92,7 +90,6 @@ export default function CBTIntroScreen() {
             </View>
           )}
 
-          {/* Form Section */}
           <View className="mt-6 gap-4">
             <View>
               <Text className="mb-1.5 font-poppins-semibold text-xs text-neutral-700">
@@ -154,7 +151,6 @@ export default function CBTIntroScreen() {
             </View>
           </View>
 
-          {/* Action Button */}
           <Button
             className="mt-8 h-12 w-full rounded-xl bg-primary-300 active:bg-primary-400 justify-center items-center"
             disabled={isLoading || !automaticThought.trim()}

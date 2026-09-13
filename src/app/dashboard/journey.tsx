@@ -59,20 +59,17 @@ export default function JourneyScreen() {
   }, [activeSheet]);
 
   const handleDayPress = async (dayNum: number, dayStatus: JourneyDayStatus) => {
-    // 1. If day is locked
     if (dayStatus === "locked") {
       setActiveSheet({ day: dayNum, mode: "locked" });
       return;
     }
 
-    // 2. If day is completed
     if (dayStatus === "complete") {
       void fetchDayMissions(dayNum, token);
       setActiveSheet({ day: dayNum, mode: "success" });
       return;
     }
 
-    // 3. If day is active (today)
     if (!status?.isMoodCheckedToday) {
       setMoodAlertOpen(true);
       return;
@@ -130,7 +127,6 @@ export default function JourneyScreen() {
     ? Math.round((status.completedDaysCount / status.totalDays) * 100)
     : 0;
 
-  // Calculate day node positions (snake path layout)
   const daysList: JourneyDayRenderItem[] = (status?.activeWeekDays || []).map((d, idx) => {
     const isEven = idx % 2 === 0;
     const renderStatus: JourneyDayStatus =
@@ -161,7 +157,6 @@ export default function JourneyScreen() {
             Perjalanan Terapi
           </Text>
 
-          {/* Banner Peringatan Mood Check jika belum diisi */}
           {status && !status.isMoodCheckedToday && (
             <View className="mt-4 w-full p-3 bg-amber-50 border border-amber-200 rounded-xl items-center flex-row justify-between">
               <View className="flex-1 pr-2">
@@ -216,7 +211,6 @@ export default function JourneyScreen() {
         </ScrollView>
       </SafeAreaView>
 
-      {/* Sheet Misi Hari */}
       <JourneyDaySheet
         day={activeSheet?.day ?? status?.currentDay ?? 1}
         mode={activeSheet?.mode ?? "tasks"}
@@ -235,7 +229,6 @@ export default function JourneyScreen() {
         week={status?.currentWeek || 1}
       />
 
-      {/* Modal Prompt Mood Check Required */}
       {moodAlertOpen && (
         <View className="absolute inset-0 bg-black/40 items-center justify-center p-6 z-50">
           <View className="bg-white rounded-2xl p-6 w-full items-center">

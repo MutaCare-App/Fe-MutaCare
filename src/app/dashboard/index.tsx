@@ -25,7 +25,6 @@ export default function DashboardScreen() {
   const completedCount = tasks.filter((t) => t.completed).length;
   const totalCount = tasks.length;
   const allTasksDone = isFinished || (totalCount > 0 && completedCount === totalCount);
-
   const currentStreak = status?.streakCount ?? user?.currentStreak ?? 0;
   const maxStreak = Math.max(user?.longestStreak ?? 0, currentStreak);
 
@@ -41,7 +40,6 @@ export default function DashboardScreen() {
           contentContainerStyle={{ paddingBottom: 24 }}
           className="w-full"
         >
-          {/* Header & Streak */}
           <DashboardHeader
             avatarUrl={user?.avatarUrl ?? undefined}
             currentStreak={currentStreak}
@@ -49,13 +47,8 @@ export default function DashboardScreen() {
             userName={user?.nickname || user?.fullName}
             isTodayCompleted={allTasksDone}
           />
-
-          {/* Body Content Cards */}
           <View className="px-5 pt-5 gap-4">
-            {/* Mood Check */}
             <MoodCheckCard />
-
-            {/* Latihan Hari Ini */}
             <DailyPracticeCard />
           </View>
         </ScrollView>

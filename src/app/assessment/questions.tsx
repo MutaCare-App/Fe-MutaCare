@@ -38,14 +38,12 @@ export default function AssessmentQuestions() {
         edges={["top", "bottom", "left", "right"]}
         className="px-8 flex justify-between pb-6"
       >
-        {/* Header: Back Button, Stage Title & Progress Bar */}
         <AssessmentHeader
           stageLabel={currentQ.stageLabel}
           progressValue={progressValue}
           onBack={handleBack}
         />
 
-        {/* Content Question & Options */}
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ flexGrow: 1 }}
@@ -72,7 +70,6 @@ export default function AssessmentQuestions() {
           />
         </ScrollView>
 
-        {/* Bottom Button */}
         <View className="w-full pt-2">
           <Button
             onPress={handleNext}

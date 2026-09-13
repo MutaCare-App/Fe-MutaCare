@@ -156,10 +156,10 @@ At the baseline commit, `npx.cmd tsc --noEmit --pretty false` passes.
 
 ## Known gaps and cautions
 
-- `README.md` contains unresolved Git merge-conflict markers and still mostly contains the create-expo-app template.
+- `README.md` has been updated with comprehensive project and feature documentation.
 - `package.json` defines `reset-project`, but the referenced `scripts/reset-project.js` is absent.
 - No tests or test configuration are present.
-- No checked-in `.env` example documents `EXPO_PUBLIC_API_URL`.
+- `.env.example` documents `EXPO_PUBLIC_API_URL`.
 - No auth/session persistence, refresh-token flow, route protection, or server-side user bootstrap exists.
 - Login and registration Google buttons are visual only.
 - Dashboard data and three dashboard tabs are placeholders.

@@ -152,7 +152,6 @@ export default function CBTAnalysisScreen() {
             })}
           </View>
 
-          {/* Continue Button */}
           <Button
             className="mt-8 h-12 w-full rounded-xl bg-primary-300 active:bg-primary-400 justify-center items-center flex-row gap-2"
             disabled={!selectedOption || isStartingSimulation}

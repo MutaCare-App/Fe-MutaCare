@@ -48,10 +48,8 @@ export default function RelaxationSessionScreen() {
   const [isComplete, setIsComplete] = useState(false);
   const [sound, setSound] = useState("Hujan");
 
-  // Create native audio player using expo-audio
   const player = useAudioPlayer(SOUND_FILES[sound]);
 
-  // Configure Audio mode on mount
   useEffect(() => {
     try {
       void setAudioModeAsync({
@@ -63,14 +61,12 @@ export default function RelaxationSessionScreen() {
     }
   }, []);
 
-  // Update loop mode on player
   useEffect(() => {
     if (player) {
       player.loop = true;
     }
   }, [player]);
 
-  // Handle sound source change
   useEffect(() => {
     const audioSource = SOUND_FILES[sound];
     if (audioSource && player) {
@@ -86,7 +82,6 @@ export default function RelaxationSessionScreen() {
     }
   }, [sound]);
 
-  // Play/Pause audio playback on isRunning change
   useEffect(() => {
     if (!player) return;
     try {
@@ -104,7 +99,6 @@ export default function RelaxationSessionScreen() {
     try {
       player?.pause();
     } catch (e) {
-      // ignore
     }
 
     if (router.canGoBack()) {
@@ -115,7 +109,6 @@ export default function RelaxationSessionScreen() {
     router.replace("/relaxation");
   };
 
-  // Timer Countdown Effect
   useEffect(() => {
     if (!isRunning) return;
 
@@ -126,7 +119,6 @@ export default function RelaxationSessionScreen() {
     return () => clearInterval(timer);
   }, [isRunning]);
 
-  // Complete session & auto-submit mission on timer finish
   useEffect(() => {
     if (secondsRemaining === 0 && isRunning) {
       setIsRunning(false);
@@ -135,7 +127,6 @@ export default function RelaxationSessionScreen() {
       try {
         player?.pause();
       } catch (e) {
-        // ignore
       }
 
       if (token && selectedDayData) {
@@ -176,7 +167,6 @@ export default function RelaxationSessionScreen() {
     try {
       player?.pause();
     } catch (e) {
-      // ignore
     }
 
     if (relMission && token && relMission.status !== "completed") {

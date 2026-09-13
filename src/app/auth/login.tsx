@@ -21,7 +21,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-// Daftarkan icon ke NativeWind
 iconWithClassName(EnvelopeIcon);
 iconWithClassName(KeyIcon);
 
@@ -52,7 +51,6 @@ export default function Login() {
 
     if (success) {
       const user = useAuthStore.getState().user;
-      // If user has already completed the initial assessment, redirect straight to dashboard
       if (user?.hasCompletedAssessment) {
         router.replace("/dashboard");
       } else {
@@ -83,7 +81,6 @@ export default function Login() {
             className="w-full"
           >
             <View className="flex w-full">
-              {/* Header Text */}
               <View className="flex items-center">
                 <Text className="pt-6 text-3xl font-feather-bold text-primary-300">
                   Masuk ke Mutacare
@@ -92,11 +89,7 @@ export default function Login() {
                   Masuk untuk melanjutkan perjalanan terapimu
                 </Text>
               </View>
-
-              {/* Banner Error */}
               <AuthErrorBanner message={activeError} />
-
-              {/* Form Fields */}
               <View className="flex gap-4 pt-6 w-full">
                 <AuthInput
                   label="Email"
@@ -111,7 +104,6 @@ export default function Login() {
                   }}
                   icon={<EnvelopeIcon size={28} className="text-secondary-300" />}
                 />
-
                 <AuthInput
                   label="Kata Sandi"
                   placeholder="Masukkan Kata Sandi Anda"
@@ -126,8 +118,6 @@ export default function Login() {
                   }}
                   icon={<KeyIcon size={28} className="text-secondary-300" />}
                 />
-
-                {/* Tombol Masuk */}
                 <Button
                   onPress={handleLogin}
                   disabled={isLoading}
@@ -142,12 +132,8 @@ export default function Login() {
                   )}
                 </Button>
               </View>
-
-              {/* Atau Masuk Dengan */}
               <AuthSocialButton title="Atau Masuk Dengan" />
             </View>
-
-            {/* Footer */}
             <AuthFooterLink
               prompt="Belum punya akun?"
               actionText="Daftar Akun"

@@ -29,13 +29,11 @@ export default function AssessmentResult() {
       >
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1, justifyContent: "space-between" }}>
           <View>
-            {/* Ilustrasi & Judul */}
             <ResultHeader
               title="Asesmen Selesai!"
               subtitle={subtitleText}
             />
 
-            {/* Section Ringkasan & 4 Cards */}
             <View className="mt-4">
               <ResultSummaryGrid
                 anxietyLevel={anxietyLevelLabel}
@@ -46,7 +44,6 @@ export default function AssessmentResult() {
             </View>
           </View>
 
-          {/* Tombol Aksi Bawah */}
           <View className="pt-6">
             <ResultFooter onPress={() => router.replace("/dashboard")} />
           </View>

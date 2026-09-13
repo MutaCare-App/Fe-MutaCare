@@ -127,7 +127,6 @@ export default function ProgressScreen() {
         style={{ flex: 1 }}
         edges={["top", "left", "right"]}
       >
-        {/* Header Title */}
         <View className="items-center justify-center pt-3 pb-4">
           <Text className="font-feather-bold text-2xl text-primary-300">
             Kemajuan
@@ -150,7 +149,6 @@ export default function ProgressScreen() {
             gap: 24,
           }}
         >
-          {/* Section 1: Ringkasan */}
           <View className="gap-3">
             <ProgressSectionHeader
               title="Ringkasan"
@@ -163,7 +161,6 @@ export default function ProgressScreen() {
             </View>
           </View>
 
-          {/* Section 2: Riwayat Refleksi */}
           <View className="gap-3">
             <ProgressSectionHeader
               title="Riwayat Refleksi"
@@ -176,7 +173,6 @@ export default function ProgressScreen() {
             />
           </View>
 
-          {/* Section 3: Mood */}
           <View className="gap-3">
             <ProgressSectionHeader
               title="Mood"

@@ -39,7 +39,6 @@ export default function CBTCompleteScreen() {
     if (result) {
       setSubmitted(true);
 
-      // Auto complete daily CBT & simulation missions if available in current active day
       if (token && selectedDayData) {
         const missionsToComplete = selectedDayData.missions.filter(
           (m) =>

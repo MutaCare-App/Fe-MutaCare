@@ -45,7 +45,6 @@ export default function SimulationSessionScreen() {
   const [recordTimer, setRecordTimer] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
 
-  // Configure Audio Mode on mount
   useEffect(() => {
     try {
       void setAudioModeAsync({
@@ -57,7 +56,6 @@ export default function SimulationSessionScreen() {
     }
   }, []);
 
-  // Auto-scroll on new message
   useEffect(() => {
     scrollViewRef.current?.scrollToEnd({ animated: true });
   }, [messages, isSendingTurn]);
@@ -72,9 +70,7 @@ export default function SimulationSessionScreen() {
     return null;
   }
 
-  // Handle Mock/Dev audio submission or real recording
   const handleSendAudioTurn = async () => {
-    // Demo audio URI for development or real recording path
     const demoAudioUri = 'file:///dummy_speech.m4a';
     const duration = Math.max(2, recordTimer);
 

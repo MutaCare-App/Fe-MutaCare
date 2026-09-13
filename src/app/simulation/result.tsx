@@ -25,7 +25,6 @@ export default function SimulationResultScreen() {
   const { endResult, activeScenario, resetSession } = useSimulationStore();
 
   useEffect(() => {
-    // Auto complete daily simulation mission if active in current day
     if (token && selectedDayData) {
       const simMission = selectedDayData.missions.find(
         (m) => (m.missionType === 'simulation' || m.missionType === 'guided_practice' || m.missionType === 'vocal') && m.status !== 'completed'

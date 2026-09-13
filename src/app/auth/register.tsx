@@ -22,7 +22,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-// Daftarkan icon ke NativeWind
 iconWithClassName(UserIcon);
 iconWithClassName(EnvelopeIcon);
 iconWithClassName(KeyIcon);
@@ -30,7 +29,6 @@ iconWithClassName(KeyIcon);
 export default function Register() {
   const router = useRouter();
   const { registerUser, isLoading, error, clearError } = useAuthStore();
-
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -84,7 +82,6 @@ export default function Register() {
             className="w-full"
           >
             <View className="flex w-full">
-              {/* Header Text */}
               <View className="flex items-center">
                 <Text className="pt-6 text-3xl font-feather-bold text-primary-300">
                   Buat Akun Baru
@@ -95,10 +92,8 @@ export default function Register() {
                 </Text>
               </View>
 
-              {/* Banner Error */}
               <AuthErrorBanner message={activeError} />
 
-              {/* Form Fields */}
               <View className="flex gap-4 pt-6 w-full">
                 <AuthInput
                   label="Nama Lengkap"
@@ -156,7 +151,6 @@ export default function Register() {
                   icon={<KeyIcon size={28} className="text-secondary-300" />}
                 />
 
-                {/* Tombol Daftar */}
                 <Button
                   onPress={handleRegister}
                   disabled={isLoading}
@@ -172,11 +166,9 @@ export default function Register() {
                 </Button>
               </View>
 
-              {/* Atau Daftar Dengan */}
               <AuthSocialButton title="Atau Daftar Dengan" />
             </View>
 
-            {/* Footer: Sudah Memiliki Akun? Masuk */}
             <AuthFooterLink
               prompt="Sudah Memiliki Akun?"
               actionText="Masuk"
