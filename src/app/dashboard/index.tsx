@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { ArticlesSection } from "@/components/dashboard/articles-section";
 import { DailyPracticeCard } from "@/components/dashboard/daily-practice-card";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { MoodCheckCard } from "@/components/dashboard/mood-check-card";
@@ -37,7 +38,7 @@ export default function DashboardScreen() {
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 24 }}
+          contentContainerStyle={{ paddingBottom: 36 }}
           className="w-full"
         >
           <DashboardHeader
@@ -51,6 +52,7 @@ export default function DashboardScreen() {
             <MoodCheckCard />
             <DailyPracticeCard />
           </View>
+          <ArticlesSection />
         </ScrollView>
       </SafeAreaView>
     </View>
