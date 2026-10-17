@@ -1,8 +1,37 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as WebBrowser from 'expo-web-browser';
 import { AuthService, AuthUserData, LoginPayload, RegisterPayload } from '@/services/authService';
 import { ChangePasswordPayload, UpdateUserProfilePayload, UserService } from '@/services/userService';
+
+WebBrowser.maybeCompleteAuthSession();
+
+function parseAuthParams(url: string): { code?: string; accessToken?: string; refreshToken?: string } {
+  let code: string | undefined;
+  let accessToken: string | undefined;
+  let refreshToken: string | undefined;
+
+  const queryIdx = url.indexOf('?');
+  if (queryIdx !== -1) {
+    const queryString = url.slice(queryIdx + 1).split('#')[0];
+    const params = new URLSearchParams(queryString);
+    if (params.get('code')) code = params.get('code')!;
+    if (params.get('access_token')) accessToken = params.get('access_token')!;
+    if (params.get('refresh_token')) refreshToken = params.get('refresh_token')!;
+  }
+
+  const hashIdx = url.indexOf('#');
+  if (hashIdx !== -1) {
+    const hashString = url.slice(hashIdx + 1);
+    const params = new URLSearchParams(hashString);
+    if (!code && params.get('code')) code = params.get('code')!;
+    if (!accessToken && params.get('access_token')) accessToken = params.get('access_token')!;
+    if (!refreshToken && params.get('refresh_token')) refreshToken = params.get('refresh_token')!;
+  }
+
+  return { code, accessToken, refreshToken };
+}
 
 interface AuthState {
   user: AuthUserData | null;
@@ -20,6 +49,7 @@ interface AuthState {
   setHasHydrated: (state: boolean) => void;
   registerUser: (payload: RegisterPayload) => Promise<boolean>;
   loginUser: (payload: LoginPayload) => Promise<boolean>;
+  loginWithGoogle: () => Promise<boolean>;
   fetchProfile: () => Promise<boolean>;
   updateProfile: (payload: UpdateUserProfilePayload) => Promise<boolean>;
   changePassword: (payload: ChangePasswordPayload) => Promise<boolean>;
@@ -81,6 +111,47 @@ export const useAuthStore = create<AuthState>()(
           return true;
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : 'Login gagal. Periksa kembali email dan kata sandi Anda.';
+          set({ isLoading: false, error: message });
+          return false;
+        }
+      },
+
+      loginWithGoogle: async (): Promise<boolean> => {
+        set({ isLoading: true, error: null });
+        try {
+          const redirectUri = 'femutacare://auth/callback';
+          const { url: authUrl } = await AuthService.getGoogleOAuthUrl(redirectUri);
+
+          const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri);
+
+          if (result.type !== 'success' || !result.url) {
+            set({ isLoading: false });
+            return false;
+          }
+
+          const { code, accessToken, refreshToken } = parseAuthParams(result.url);
+
+          if (!code && !accessToken) {
+            throw new Error('Tidak menerima token atau kode otentikasi dari Google');
+          }
+
+          const data = await AuthService.handleGoogleOAuthCallback({
+            code,
+            accessToken,
+            refreshToken,
+          });
+
+          set({
+            user: data.user,
+            token: data.session?.accessToken || accessToken || null,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null,
+            profileError: null,
+          });
+          return true;
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : 'Autentikasi Google gagal. Silakan coba lagi.';
           set({ isLoading: false, error: message });
           return false;
         }

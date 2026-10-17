@@ -37,11 +37,11 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
     set({ isLoadingSummary: true, error: null });
     try {
       const summary = await ProgressService.getProgressSummary(token);
-      set({
+      set((state) => ({
         summary,
-        selectedWeek: summary.currentWeek,
+        selectedWeek: state.weeklyMood ? state.selectedWeek : summary.currentWeek,
         isLoadingSummary: false,
-      });
+      }));
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Gagal memuat ringkasan kemajuan';
       set({ isLoadingSummary: false, error: message });
@@ -61,7 +61,7 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
 
   fetchWeeklyMood: async (weekNumber, token) => {
     set({ isLoadingWeeklyMood: true, error: null });
-    const targetWeek = weekNumber ?? get().selectedWeek;
+    const targetWeek = weekNumber ?? (get().weeklyMood ? get().selectedWeek : undefined);
     try {
       const weeklyMood = await ProgressService.getWeeklyMood(targetWeek, token);
       set({

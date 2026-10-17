@@ -31,6 +31,7 @@ iconWithClassName(CaretRightIcon);
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const CARD_WIDTH = Math.min(270, SCREEN_WIDTH * 0.72);
+const CARD_HEIGHT = 250;
 
 export function ArticlesSection() {
   const router = useRouter();
@@ -53,16 +54,17 @@ export function ArticlesSection() {
     router.push("/articles" as any);
   };
 
-  const renderServiceIcon = (iconName: string) => {
+  const renderServiceIcon = (iconName: string, iconColor?: string) => {
+    const color = iconColor || "#40513B";
     switch (iconName) {
       case "Heartbeat":
-        return <HeartbeatIcon size={24} weight="fill" color="#ffffff" />;
+        return <HeartbeatIcon size={36} weight="fill" color={color} />;
       case "GraduationCap":
-        return <GraduationCapIcon size={24} weight="fill" color="#ffffff" />;
+        return <GraduationCapIcon size={36} weight="fill" color={color} />;
       case "Sparkle":
-        return <SparkleIcon size={24} weight="fill" color="#ffffff" />;
+        return <SparkleIcon size={36} weight="fill" color={color} />;
       default:
-        return <SparkleIcon size={24} weight="fill" color="#ffffff" />;
+        return <SparkleIcon size={36} weight="fill" color={color} />;
     }
   };
 
@@ -95,26 +97,34 @@ export function ArticlesSection() {
                   handleOpenArticle("stimulus-fading-dan-terapi");
                 }
               }}
-              className="mr-3 items-center"
-              style={{ width: 110 }}
+              className="mr-4 items-center active:opacity-70"
+              style={{ width: 104 }}
             >
-              <LinearGradient
-                colors={service.bgGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                className="w-full h-24 rounded-2xl p-2.5 items-center justify-center shadow-sm relative overflow-hidden"
+              {/* Clean Icon with NO background */}
+              <View className="h-12 items-center justify-center mb-1">
+                {renderServiceIcon(service.icon, service.iconColor)}
+              </View>
+
+              {/* Badge */}
+              <View
+                className="px-2.5 py-0.5 rounded-full mb-1.5"
+                style={{
+                  backgroundColor: service.badgeBg || "#F5F5F5",
+                  borderWidth: 1,
+                  borderColor: service.borderColor || "#E5E5E5",
+                }}
               >
-                <View className="bg-white/20 p-2.5 rounded-full mb-1">
-                  {renderServiceIcon(service.icon)}
-                </View>
-                <View className="bg-white/90 px-1.5 py-0.5 rounded-full">
-                  <Text className="font-poppins-semibold text-[9px] text-neutral-800">
-                    {service.badge}
-                  </Text>
-                </View>
-              </LinearGradient>
+                <Text
+                  className="font-poppins-semibold text-[9.5px]"
+                  style={{ color: service.badgeText || "#40513B" }}
+                >
+                  {service.badge}
+                </Text>
+              </View>
+
+              {/* Title */}
               <Text
-                className="font-poppins-medium text-xs text-neutral-700 text-center mt-2 leading-tight"
+                className="font-poppins-semibold text-xs text-neutral-800 text-center leading-tight"
                 numberOfLines={2}
               >
                 {service.title}
@@ -206,7 +216,7 @@ function ArticleHomeCard({
   return (
     <Pressable
       onPress={onPress}
-      style={{ width: CARD_WIDTH }}
+      style={{ width: CARD_WIDTH, height: CARD_HEIGHT }}
       className="bg-white rounded-2xl mr-4 overflow-hidden border border-neutral-100 shadow-sm"
     >
       {/* Thumbnail Image */}
@@ -232,7 +242,10 @@ function ArticleHomeCard({
       </View>
 
       {/* Card Content */}
-      <View className="p-3.5 justify-between flex-1">
+      <View
+        className="p-3.5 justify-between flex-1"
+        style={{ minHeight: 104 }}
+      >
         <Text
           numberOfLines={2}
           className="font-poppins-semibold text-neutral-800 text-[13px] leading-snug mb-2.5"

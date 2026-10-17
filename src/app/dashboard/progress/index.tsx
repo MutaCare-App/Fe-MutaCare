@@ -36,37 +36,36 @@ export default function ProgressScreen() {
     weeklyMood,
     selectedWeek,
     isLoadingSummary,
+    isLoadingWeeklyMood,
     fetchProgressSummary,
     fetchWeeklyMood,
   } = useProgressStore();
 
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const loadData = useCallback(async () => {
-    if (!token) return;
-    await Promise.allSettled([
-      fetchProgressSummary(token),
-      fetchWeeklyMood(selectedWeek, token),
-    ]);
-  }, [token, selectedWeek, fetchProgressSummary, fetchWeeklyMood]);
-
   useFocusEffect(
     useCallback(() => {
-      void loadData();
-    }, [loadData])
+      if (!token) return;
+      void fetchProgressSummary(token);
+      void fetchWeeklyMood(undefined, token);
+    }, [token, fetchProgressSummary, fetchWeeklyMood])
   );
 
   const handleRefresh = async () => {
+    if (!token) return;
     setIsRefreshing(true);
     try {
-      await loadData();
+      await Promise.allSettled([
+        fetchProgressSummary(token),
+        fetchWeeklyMood(selectedWeek, token),
+      ]);
     } finally {
       setIsRefreshing(false);
     }
   };
 
   const handleWeekChange = (newWeek: number) => {
-    if (!token) return;
+    if (!token || isLoadingWeeklyMood) return;
     void fetchWeeklyMood(newWeek, token);
   };
 
@@ -186,6 +185,7 @@ export default function ProgressScreen() {
               todayMood={(weeklyMood?.todayMood?.label as any) ?? null}
               dominantMood={weeklyMood?.dominantMood}
               insightText={weeklyMood?.insight}
+              isLoading={isLoadingWeeklyMood}
             />
           </View>
         </ScrollView>

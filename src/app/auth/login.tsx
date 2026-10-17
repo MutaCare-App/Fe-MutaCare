@@ -26,7 +26,7 @@ iconWithClassName(KeyIcon);
 
 export default function Login() {
   const router = useRouter();
-  const { loginUser, isLoading, error, clearError } = useAuthStore();
+  const { loginUser, loginWithGoogle, isLoading, error, clearError } = useAuthStore();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -48,6 +48,22 @@ export default function Login() {
     }
 
     const success = await loginUser(parseResult.data);
+
+    if (success) {
+      const user = useAuthStore.getState().user;
+      if (user?.hasCompletedAssessment) {
+        router.replace("/dashboard");
+      } else {
+        router.replace("/assessment");
+      }
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setLocalError(null);
+    clearError();
+
+    const success = await loginWithGoogle();
 
     if (success) {
       const user = useAuthStore.getState().user;
@@ -132,7 +148,12 @@ export default function Login() {
                   )}
                 </Button>
               </View>
-              <AuthSocialButton title="Atau Masuk Dengan" />
+              <AuthSocialButton
+                title="Atau Masuk Dengan"
+                onPress={handleGoogleLogin}
+                isLoading={isLoading}
+                disabled={isLoading}
+              />
             </View>
             <AuthFooterLink
               prompt="Belum punya akun?"

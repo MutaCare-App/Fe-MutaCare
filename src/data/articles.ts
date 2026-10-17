@@ -25,6 +25,10 @@ export interface SupportCard {
   badge: string;
   bgGradient: [string, string];
   icon: string;
+  iconColor?: string;
+  badgeBg?: string;
+  badgeText?: string;
+  borderColor?: string;
 }
 
 export const ARTICLE_CATEGORIES = [
@@ -44,24 +48,36 @@ export const SUPPORT_SERVICES: SupportCard[] = [
     title: "Panduan Orang Tua",
     subtitle: "Langkah mendampingi anak cemas bicara di rumah",
     badge: "Populer",
-    bgGradient: ["#FF4B72", "#E11462"],
+    bgGradient: ["#FFF1F3", "#FFE4E8"],
     icon: "Heartbeat",
+    iconColor: "#E11D48",
+    badgeBg: "#FFE4E6",
+    badgeText: "#BE123C",
+    borderColor: "#FECDD3",
   },
   {
     id: "modul-sekolah",
     title: "Modul Guru & Kelas",
     subtitle: "Strategi komunikasi ramah di lingkungan sekolah",
     badge: "Edukasi",
-    bgGradient: ["#2EC477", "#19BD9E"],
+    bgGradient: ["#F0FDF4", "#DCFCE7"],
     icon: "GraduationCap",
+    iconColor: "#059669",
+    badgeBg: "#DCFCE7",
+    badgeText: "#047857",
+    borderColor: "#BBF7D0",
   },
   {
     id: "latihan-bertahap",
     title: "Latihan Bertahap",
     subtitle: "Teknik stimulus fading dan tangga keberanian",
     badge: "Praktik",
-    bgGradient: ["#F9B145", "#F6C75A"],
+    bgGradient: ["#FFFBEB", "#FEF3C7"],
     icon: "Sparkle",
+    iconColor: "#D97706",
+    badgeBg: "#FEF3C7",
+    badgeText: "#B45309",
+    borderColor: "#FDE68A",
   },
 ];
 

@@ -3,6 +3,7 @@ import { Text } from '@/components/ui/text';
 import { iconWithClassName } from '@/lib/iconWithClassName';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useSimulationStore, ChatMessage } from '@/store/useSimulationStore';
+import { CBTService } from '@/services/cbtService';
 import { useAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
@@ -36,6 +37,7 @@ export default function SimulationSessionScreen() {
     messages,
     sendAudioTurn,
     endSimulationSession,
+    updateMessageAudioUrl,
     isSendingTurn,
     isEnding,
   } = useSimulationStore();
@@ -43,7 +45,48 @@ export default function SimulationSessionScreen() {
   const [textInput, setTextInput] = useState('');
   const [isRecordingMock, setIsRecordingMock] = useState(false);
   const [recordTimer, setRecordTimer] = useState(0);
+  const [activePlayingAudio, setActivePlayingAudio] = useState<string | null>(null);
+  const [loadingAudioMsgId, setLoadingAudioMsgId] = useState<string | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
+  const player = useAudioPlayer(null);
+
+  // Play audio helper
+  const playAudio = (url: string) => {
+    try {
+      if (player && url) {
+        player.replace({ uri: url });
+        player.play();
+        setActivePlayingAudio(url);
+      }
+    } catch (e) {
+      console.warn('Playback error:', e);
+    }
+  };
+
+  // On-demand TTS synthesis when user taps speaker button
+  const handleSpeakerPress = async (msg: ChatMessage) => {
+    if (activePlayingAudio === msg.audioUrl && player.playing) {
+      player.pause();
+      setActivePlayingAudio(null);
+      return;
+    }
+
+    if (msg.audioUrl) {
+      playAudio(msg.audioUrl);
+      return;
+    }
+
+    setLoadingAudioMsgId(msg.id);
+    try {
+      const url = await CBTService.synthesizeTTS(msg.text, token);
+      if (url) {
+        updateMessageAudioUrl(msg.id, url);
+        playAudio(url);
+      }
+    } finally {
+      setLoadingAudioMsgId(null);
+    }
+  };
 
   useEffect(() => {
     try {
@@ -169,12 +212,39 @@ export default function SimulationSessionScreen() {
             return (
               <View
                 key={msg.id}
-                className={`max-w-[82%] p-3.5 rounded-2xl ${
+                className={`max-w-[85%] p-3.5 rounded-2xl ${
                   isUser
                     ? 'self-end bg-primary-300 rounded-br-none'
                     : 'self-start bg-neutral-100 border border-neutral-200 rounded-bl-none'
                 }`}
               >
+                {!isUser && (
+                  <View className="flex-row items-center justify-between gap-2 mb-1">
+                    <Text className="font-poppins-medium text-[10px] text-neutral-500">
+                      {activeScenario?.personaRole || 'Lawan Bicara'}
+                    </Text>
+                    <Pressable
+                      onPress={() => void handleSpeakerPress(msg)}
+                      disabled={loadingAudioMsgId === msg.id}
+                      className="p-1 px-1.5 rounded-full bg-white border border-neutral-200 flex-row items-center gap-1 active:opacity-70"
+                      accessibilityLabel="Dengarkan Suara AI"
+                    >
+                      {loadingAudioMsgId === msg.id ? (
+                        <ActivityIndicator size="small" color="#007799" style={{ transform: [{ scale: 0.6 }] }} />
+                      ) : (
+                        <SpeakerHighIcon
+                          size={13}
+                          weight={activePlayingAudio === msg.audioUrl ? 'fill' : 'regular'}
+                          className={
+                            activePlayingAudio === msg.audioUrl
+                              ? 'text-primary-300'
+                              : 'text-neutral-600'
+                          }
+                        />
+                      )}
+                    </Pressable>
+                  </View>
+                )}
                 <Text
                   className={`font-poppins text-xs leading-5 ${
                     isUser ? 'text-white' : 'text-neutral-800'

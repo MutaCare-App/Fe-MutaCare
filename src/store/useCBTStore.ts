@@ -49,6 +49,7 @@ interface CBTState {
     token?: string | null
   ) => Promise<boolean>;
   completeSession: (token?: string | null) => Promise<CompleteCBTResult | null>;
+  updateMessageAudioUrl: (id: string, audioUrl: string) => void;
   reset: () => void;
 }
 
@@ -238,6 +239,13 @@ export const useCBTStore = create<CBTState>((set, get) => ({
       return null;
     }
   },
+
+  updateMessageAudioUrl: (id: string, audioUrl: string) =>
+    set((state) => ({
+      simulationMessages: state.simulationMessages.map((m) =>
+        m.id === id ? { ...m, audioUrl } : m
+      ),
+    })),
 
   reset: () =>
     set({

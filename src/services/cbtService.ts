@@ -258,6 +258,26 @@ export class CBTService {
     return json.data;
   }
 
+  public static async synthesizeTTS(
+    text: string,
+    token?: string | null
+  ): Promise<string | null> {
+    try {
+      const res = await apiFetch<{ audioUrl: string | null }>(
+        '/cbt/tts',
+        {
+          method: 'POST',
+          body: JSON.stringify({ text }),
+        },
+        token
+      );
+      return res.data?.audioUrl || null;
+    } catch (err) {
+      console.warn('Failed to synthesize on-demand TTS audio:', err);
+      return null;
+    }
+  }
+
   public static async completeSession(
     payload: CompleteCBTPayload,
     token?: string | null
