@@ -34,6 +34,7 @@ interface SimulationState {
     token?: string | null
   ) => Promise<SimulationTurnResult | null>;
   endSimulationSession: (anxietyScoreAfter?: number, token?: string | null) => Promise<EndSimulationResult | null>;
+  updateMessageAudioUrl: (id: string, audioUrl: string) => void;
   resetSession: () => void;
 }
 
@@ -149,6 +150,13 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
       return null;
     }
   },
+
+  updateMessageAudioUrl: (id: string, audioUrl: string) =>
+    set((state) => ({
+      messages: state.messages.map((m) =>
+        m.id === id ? { ...m, audioUrl } : m
+      ),
+    })),
 
   resetSession: () =>
     set({

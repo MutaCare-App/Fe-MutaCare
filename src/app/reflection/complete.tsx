@@ -38,6 +38,7 @@ export default function ReflectionCompleteScreen() {
       if (refMission && !hasCompletedRef.current) {
         hasCompletedRef.current = true;
         await completeMission(refMission.id, { reflectionNotes: note }, token);
+        useJourneyStore.getState().setHasCompletedDayToday(true);
       }
     };
 
@@ -67,6 +68,12 @@ export default function ReflectionCompleteScreen() {
           </Text>
           <Text className="mt-1 w-full text-center font-poppins text-xs tracking-[0.8px] text-neutral-700">
             Kamu Telah Menyelesaikan Latihan Hari Ini.
+          </Text>
+        </View>
+
+        <View className="mt-3 w-full rounded-xl bg-emerald-50 border border-emerald-200/60 p-2.5">
+          <Text className="text-center font-poppins text-[11px] leading-4 text-emerald-800">
+            🌿 <Text className="font-poppins-semibold">Tips Hari Ini:</Text> Istirahatlah sejenak. Berikan waktu bagi pikiranmu untuk mengendapkan latihan sebelum melanjutkan ke hari berikutnya.
           </Text>
         </View>
 

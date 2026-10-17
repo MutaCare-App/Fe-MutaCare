@@ -28,7 +28,7 @@ iconWithClassName(KeyIcon);
 
 export default function Register() {
   const router = useRouter();
-  const { registerUser, isLoading, error, clearError } = useAuthStore();
+  const { registerUser, loginWithGoogle, isLoading, error, clearError } = useAuthStore();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -57,6 +57,22 @@ export default function Register() {
 
     if (success) {
       router.replace("/assessment");
+    }
+  };
+
+  const handleGoogleRegister = async () => {
+    setLocalError(null);
+    clearError();
+
+    const success = await loginWithGoogle();
+
+    if (success) {
+      const user = useAuthStore.getState().user;
+      if (user?.hasCompletedAssessment) {
+        router.replace("/dashboard");
+      } else {
+        router.replace("/assessment");
+      }
     }
   };
 
@@ -166,7 +182,12 @@ export default function Register() {
                 </Button>
               </View>
 
-              <AuthSocialButton title="Atau Daftar Dengan" />
+              <AuthSocialButton
+                title="Atau Daftar Dengan"
+                onPress={handleGoogleRegister}
+                isLoading={isLoading}
+                disabled={isLoading}
+              />
             </View>
 
             <AuthFooterLink

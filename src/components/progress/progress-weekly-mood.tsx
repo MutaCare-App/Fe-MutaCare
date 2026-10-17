@@ -4,7 +4,7 @@ import { useMoodStore } from "@/store/useMoodStore";
 import { CaretLeftIcon } from "phosphor-react-native/src/icons/CaretLeft";
 import { CaretRightIcon } from "phosphor-react-native/src/icons/CaretRight";
 import React, { useState } from "react";
-import { Image, ImageSourcePropType, Pressable, View } from "react-native";
+import { ActivityIndicator, Image, ImageSourcePropType, Pressable, View } from "react-native";
 
 iconWithClassName(CaretLeftIcon);
 iconWithClassName(CaretRightIcon);
@@ -79,6 +79,7 @@ export interface ProgressWeeklyMoodProps {
   onWeekChange?: (week: number) => void;
   dominantMood?: string | null;
   insightText?: string;
+  isLoading?: boolean;
 }
 
 export function ProgressWeeklyMood({
@@ -89,6 +90,7 @@ export function ProgressWeeklyMood({
   onWeekChange,
   dominantMood,
   insightText,
+  isLoading = false,
 }: ProgressWeeklyMoodProps = {}) {
   const [internalWeek, setInternalWeek] = useState(currentWeek);
   const storeMood = useMoodStore((state) => state.selectedMood);
@@ -96,12 +98,14 @@ export function ProgressWeeklyMood({
   const displayWeek = currentWeek ?? internalWeek;
 
   const handlePrevWeek = () => {
+    if (isLoading || displayWeek <= 1) return;
     const nextWeek = Math.max(1, displayWeek - 1);
     setInternalWeek(nextWeek);
     onWeekChange?.(nextWeek);
   };
 
   const handleNextWeek = () => {
+    if (isLoading || displayWeek >= maxWeek) return;
     const nextWeek = Math.min(maxWeek, displayWeek + 1);
     setInternalWeek(nextWeek);
     onWeekChange?.(nextWeek);
@@ -158,22 +162,27 @@ export function ProgressWeeklyMood({
         <View className="flex-row items-center justify-center mt-4 pt-1">
           <Pressable
             onPress={handlePrevWeek}
-            disabled={displayWeek <= 1}
-            className={`p-1 active:opacity-60 ${displayWeek <= 1 ? "opacity-30" : ""}`}
+            disabled={displayWeek <= 1 || isLoading}
+            className={`p-1 active:opacity-60 ${displayWeek <= 1 || isLoading ? "opacity-30" : ""}`}
             hitSlop={8}
             accessibilityLabel="Minggu Sebelumnya"
           >
             <CaretLeftIcon size={16} className="text-neutral-700" />
           </Pressable>
 
-          <Text className="font-poppins text-xs text-neutral-700 mx-5">
-            Minggu Ke {displayWeek}
-          </Text>
+          <View className="flex-row items-center mx-5">
+            <Text className="font-poppins text-xs text-neutral-700">
+              Minggu Ke {displayWeek}
+            </Text>
+            {isLoading && (
+              <ActivityIndicator size="small" color="#525252" className="ml-1.5" />
+            )}
+          </View>
 
           <Pressable
             onPress={handleNextWeek}
-            disabled={displayWeek >= maxWeek}
-            className={`p-1 active:opacity-60 ${displayWeek >= maxWeek ? "opacity-30" : ""}`}
+            disabled={displayWeek >= maxWeek || isLoading}
+            className={`p-1 active:opacity-60 ${displayWeek >= maxWeek || isLoading ? "opacity-30" : ""}`}
             hitSlop={8}
             accessibilityLabel="Minggu Selanjutnya"
           >

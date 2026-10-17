@@ -6,6 +6,7 @@ import {
   JourneyDayNode,
   JourneyDayStatus,
 } from "@/components/journey/journey-day-node";
+import { JourneyClinicalNudgeDialog } from "@/components/journey/journey-clinical-nudge-dialog";
 import { JourneyProgressHeader } from "@/components/journey/journey-progress-header";
 import { JourneyWeekCompleteDialog } from "@/components/journey/journey-week-complete-dialog";
 import { BottomSheetModal } from "@/components/ui/bottom-sheet";
@@ -15,7 +16,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useJourneyStore } from "@/store/useJourneyStore";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Alert, ImageSourcePropType, ScrollView, View } from "react-native";
+import { ActivityIndicator, ImageSourcePropType, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const COMPLETE_IMAGE = require("../../../assets/images/journey/day-complete.png");
@@ -37,14 +38,18 @@ export default function JourneyScreen() {
     selectedDayData,
     isLoading,
     moodCheckRequired,
+    hasCompletedDayToday: storeHasCompletedDayToday,
     fetchJourneyStatus,
     fetchDayMissions,
   } = useJourneyStore();
+
+  const hasCompletedDayToday = storeHasCompletedDayToday || Boolean(status?.hasCompletedDayToday);
 
   const daySheetRef = useRef<BottomSheetModal>(null);
   const [activeSheet, setActiveSheet] = useState<{ day: number; mode: JourneySheetMode } | null>(null);
   const [weekCompleteOpen, setWeekCompleteOpen] = useState(false);
   const [moodAlertOpen, setMoodAlertOpen] = useState(false);
+  const [clinicalNudgeOpen, setClinicalNudgeOpen] = useState(false);
 
   useEffect(() => {
     if (token) {
@@ -87,7 +92,15 @@ export default function JourneyScreen() {
     daySheetRef.current?.dismiss();
   };
 
-  const startTraining = () => {
+  const handleStartTraining = () => {
+    if (hasCompletedDayToday) {
+      setClinicalNudgeOpen(true);
+      return;
+    }
+    executeStartTraining();
+  };
+
+  const executeStartTraining = () => {
     closeDaySheet();
     const relMode = selectedDayData?.relaxationMode;
     const missions = selectedDayData?.missions || [];
@@ -216,10 +229,24 @@ export default function JourneyScreen() {
         mode={activeSheet?.mode ?? "tasks"}
         onClose={closeDaySheet}
         onDismiss={() => setActiveSheet(null)}
-        onStart={startTraining}
+        onStart={handleStartTraining}
         ref={daySheetRef}
         week={status?.currentWeek || 1}
         missionsData={selectedDayData?.missions}
+      />
+
+      <JourneyClinicalNudgeDialog
+        open={clinicalNudgeOpen}
+        onOpenChange={setClinicalNudgeOpen}
+        targetDay={activeSheet?.day ?? status?.currentDay ?? 2}
+        onRest={() => {
+          setClinicalNudgeOpen(false);
+          closeDaySheet();
+        }}
+        onContinue={() => {
+          setClinicalNudgeOpen(false);
+          executeStartTraining();
+        }}
       />
 
       <JourneyWeekCompleteDialog

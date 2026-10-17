@@ -16,6 +16,7 @@ export interface JourneyStatusData {
   streakCount: number;
   mutismSeverity: 'mild' | 'moderate' | 'severe';
   activeWeekDays: DayStatusItem[];
+  hasCompletedDayToday?: boolean;
 }
 
 export interface DailyMissionFrontendItem {

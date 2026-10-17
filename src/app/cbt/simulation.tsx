@@ -3,6 +3,7 @@ import { Text } from '@/components/ui/text';
 import { iconWithClassName } from '@/lib/iconWithClassName';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCBTStore, CBTSimulationMessage } from '@/store/useCBTStore';
+import { CBTService } from '@/services/cbtService';
 import {
   useAudioPlayer,
   useAudioRecorder,
@@ -59,12 +60,14 @@ export default function CBTSimulationScreen() {
     allInstructionsCompleted,
     isSendingTurn,
     sendTurn,
+    updateMessageAudioUrl,
   } = useCBTStore();
 
   const [textInput, setTextInput] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [recordTimer, setRecordTimer] = useState(0);
   const [activePlayingAudio, setActivePlayingAudio] = useState<string | null>(null);
+  const [loadingAudioMsgId, setLoadingAudioMsgId] = useState<string | null>(null);
   const [isInstructionsExpanded, setIsInstructionsExpanded] = useState(false);
 
   const toggleInstructions = () => {
@@ -98,6 +101,33 @@ export default function CBTSimulationScreen() {
       }
     } catch (e) {
       console.warn('Playback error:', e);
+    }
+  };
+
+  // On-demand TTS synthesis when user taps speaker button
+  const handleSpeakerPress = async (msg: (typeof simulationMessages)[0]) => {
+    if (activePlayingAudio === msg.audioUrl && player.playing) {
+      player.pause();
+      setActivePlayingAudio(null);
+      return;
+    }
+
+    if (msg.audioUrl) {
+      playAudio(msg.audioUrl);
+      return;
+    }
+
+    setLoadingAudioMsgId(msg.id);
+    try {
+      const url = await CBTService.synthesizeTTS(msg.text, token);
+      if (url) {
+        updateMessageAudioUrl(msg.id, url);
+        playAudio(url);
+      } else {
+        Alert.alert('Gagal Memutar Suara', 'Koneksi ke layanan suara sedang tidak stabil.');
+      }
+    } finally {
+      setLoadingAudioMsgId(null);
     }
   };
 
@@ -352,21 +382,28 @@ export default function CBTSimulationScreen() {
                   >
                     {isUser ? 'Kamu' : personaRole}
                   </Text>
-                  {!isUser && msg.audioUrl ? (
+                  {!isUser && (
                     <Pressable
-                      onPress={() => playAudio(msg.audioUrl!)}
-                      className="p-1 rounded-full bg-white border border-neutral-200 active:opacity-70"
+                      onPress={() => void handleSpeakerPress(msg)}
+                      disabled={loadingAudioMsgId === msg.id}
+                      className="p-1 px-1.5 rounded-full bg-white border border-neutral-200 flex-row items-center gap-1 active:opacity-70"
+                      accessibilityLabel="Dengarkan Suara AI"
                     >
-                      <SpeakerHighIcon
-                        size={12}
-                        className={
-                          activePlayingAudio === msg.audioUrl
-                            ? 'text-primary-300'
-                            : 'text-neutral-600'
-                        }
-                      />
+                      {loadingAudioMsgId === msg.id ? (
+                        <ActivityIndicator size="small" color="#007799" style={{ transform: [{ scale: 0.6 }] }} />
+                      ) : (
+                        <SpeakerHighIcon
+                          size={13}
+                          weight={activePlayingAudio === msg.audioUrl ? 'fill' : 'regular'}
+                          className={
+                            activePlayingAudio === msg.audioUrl
+                              ? 'text-primary-300'
+                              : 'text-neutral-600'
+                          }
+                        />
+                      )}
                     </Pressable>
-                  ) : null}
+                  )}
                 </View>
                 <Text
                   className={`font-poppins text-xs leading-5 ${

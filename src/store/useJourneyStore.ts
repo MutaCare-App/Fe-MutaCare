@@ -17,6 +17,7 @@ interface JourneyState {
   isSubmitting: boolean;
   error: string | null;
   moodCheckRequired: boolean;
+  hasCompletedDayToday: boolean;
 
   fetchJourneyStatus: (token?: string | null) => Promise<void>;
   fetchDayMissions: (dayNumber: number, token?: string | null) => Promise<DayMissionsData | null>;
@@ -25,6 +26,7 @@ interface JourneyState {
     payload?: { sudsBefore?: number; sudsAfter?: number; reflectionNotes?: string },
     token?: string | null
   ) => Promise<DailyMissionFrontendItem | null>;
+  setHasCompletedDayToday: (val: boolean) => void;
   clearMoodCheckRequired: () => void;
   reset: () => void;
 }
@@ -36,6 +38,7 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
   isSubmitting: false,
   error: null,
   moodCheckRequired: false,
+  hasCompletedDayToday: false,
 
   fetchJourneyStatus: async (token) => {
     set({ isLoading: true, error: null, moodCheckRequired: false });
@@ -43,6 +46,7 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
       const data = await JourneyService.getJourneyStatus(token);
       set({
         status: data,
+        hasCompletedDayToday: data.hasCompletedDayToday ?? get().hasCompletedDayToday,
         isLoading: false,
         moodCheckRequired: !data.isMoodCheckedToday,
       });
@@ -103,8 +107,12 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
         const updatedMissions = currentDayData.missions.map((m) =>
           m.id === missionId ? { ...m, status: 'completed' as const } : m
         );
+        const allDone = updatedMissions.every(
+          (m) => m.status === 'completed' || m.status === 'skipped'
+        );
         set({
           isSubmitting: false,
+          hasCompletedDayToday: allDone || get().hasCompletedDayToday,
           selectedDayData: {
             ...currentDayData,
             missions: updatedMissions,
@@ -133,6 +141,8 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
     }
   },
 
+  setHasCompletedDayToday: (val: boolean) => set({ hasCompletedDayToday: val }),
+
   clearMoodCheckRequired: () => set({ moodCheckRequired: false }),
 
   reset: () => set({
@@ -142,5 +152,6 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
     isSubmitting: false,
     error: null,
     moodCheckRequired: false,
+    hasCompletedDayToday: false,
   }),
 }));
