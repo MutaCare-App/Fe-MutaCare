@@ -8,7 +8,11 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { PortalHost } from "@rn-primitives/portal";
 import { registerAuthErrorHandler } from "@/lib/api";
+import * as WebBrowser from "expo-web-browser";
+import * as Linking from "expo-linking";
 import "../../global.css";
+
+WebBrowser.maybeCompleteAuthSession();
 
 try {
   configureReanimatedLogger({
@@ -43,6 +47,46 @@ export default function RootLayout() {
     return () => {
       if (timerId) clearTimeout(timerId);
       registerAuthErrorHandler(null);
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function handleIncomingUrl(url: string) {
+      if (!url) return;
+      if (
+        url.includes("access_token=") ||
+        url.includes("code=") ||
+        url.includes("callback")
+      ) {
+        try {
+          WebBrowser.dismissAuthSession();
+        } catch {}
+
+        const success = await useAuthStore.getState().handleOAuthCallbackUrl(url);
+        if (success && isMounted) {
+          const currentUser = useAuthStore.getState().user;
+          if (currentUser?.hasCompletedAssessment) {
+            router.replace("/dashboard");
+          } else {
+            router.replace("/assessment");
+          }
+        }
+      }
+    }
+
+    Linking.getInitialURL().then((url) => {
+      if (url) void handleIncomingUrl(url);
+    });
+
+    const subscription = Linking.addEventListener("url", (event) => {
+      void handleIncomingUrl(event.url);
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.remove();
     };
   }, []);
   const [loaded, error] = useFonts({

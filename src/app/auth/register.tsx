@@ -8,11 +8,12 @@ import { Text } from "@/components/ui/text";
 import { iconWithClassName } from "@/lib/iconWithClassName";
 import { registerSchema } from "@/schemas/authSchema";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { EnvelopeIcon } from "phosphor-react-native/src/icons/Envelope";
 import { KeyIcon } from "phosphor-react-native/src/icons/Key";
 import { UserIcon } from "phosphor-react-native/src/icons/User";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import * as WebBrowser from "expo-web-browser";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -29,6 +30,18 @@ iconWithClassName(KeyIcon);
 export default function Register() {
   const router = useRouter();
   const { registerUser, loginWithGoogle, isLoading, error, clearError } = useAuthStore();
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      useAuthStore.getState().resetLoading();
+      setIsGoogleSubmitting(false);
+      clearError();
+      try {
+        WebBrowser.dismissAuthSession();
+      } catch {}
+    }, [])
+  );
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -61,18 +74,20 @@ export default function Register() {
   };
 
   const handleGoogleRegister = async () => {
+    if (isGoogleSubmitting) return;
+    setIsGoogleSubmitting(true);
     setLocalError(null);
     clearError();
 
-    const success = await loginWithGoogle();
+    try {
+      const success = await loginWithGoogle();
 
-    if (success) {
-      const user = useAuthStore.getState().user;
-      if (user?.hasCompletedAssessment) {
-        router.replace("/dashboard");
-      } else {
+      if (success) {
+        // Direct to initial assessment screen as requested
         router.replace("/assessment");
       }
+    } finally {
+      setIsGoogleSubmitting(false);
     }
   };
 
@@ -185,8 +200,8 @@ export default function Register() {
               <AuthSocialButton
                 title="Atau Daftar Dengan"
                 onPress={handleGoogleRegister}
-                isLoading={isLoading}
-                disabled={isLoading}
+                isLoading={isGoogleSubmitting}
+                disabled={isGoogleSubmitting}
               />
             </View>
 
