@@ -24,11 +24,12 @@ export function AuthInput({
   showPassword,
   onTogglePassword,
   className,
+  placeholderTextColor = "#9CA3AF",
   ...inputProps
 }: AuthInputProps) {
   return (
     <View className="w-full">
-      <Label className="font-poppins-semibold text-base">{label}</Label>
+      <Label className="font-poppins-semibold text-base text-neutral-800">{label}</Label>
       <View className="relative justify-center mt-1">
         {icon ? (
           <View className="absolute left-3.5 z-10">{icon}</View>
@@ -36,6 +37,7 @@ export function AuthInput({
         <Input
           className={`pl-14 ${isPassword ? "pr-14" : ""} ${className || ""}`}
           secureTextEntry={isPassword ? !showPassword : inputProps.secureTextEntry}
+          placeholderTextColor={placeholderTextColor}
           {...inputProps}
         />
         {isPassword && onTogglePassword ? (

@@ -5,6 +5,11 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        foreground: "#262626",
+        background: "#FFFFFF",
+        "muted-foreground": "#737373",
+        input: "#E5E5E5",
+        border: "#E5E5E5",
         primary: {
           100: "#EDF1D6",
           200: "#9DC08B",

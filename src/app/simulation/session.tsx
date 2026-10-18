@@ -257,9 +257,9 @@ export default function SimulationSessionScreen() {
           })}
 
           {isSendingTurn && (
-            <View className="self-start p-3 bg-neutral-100 rounded-2xl flex-row items-center gap-2">
-              <ActivityIndicator size="small" color="#3B82F6" />
-              <Text className="font-poppins text-xs text-neutral-600">
+            <View className="max-w-[85%] self-start p-3 bg-neutral-100 rounded-2xl rounded-bl-none flex-row items-center gap-2.5 border border-neutral-200">
+              <ActivityIndicator size="small" color="#007799" />
+              <Text className="flex-1 font-poppins text-xs text-neutral-600 leading-4">
                 AI sedang mendengarkan & merespons...
               </Text>
             </View>

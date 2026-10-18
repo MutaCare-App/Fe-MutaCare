@@ -35,6 +35,10 @@ export default function Login() {
       useAuthStore.getState().resetLoading();
       setIsGoogleSubmitting(false);
       clearError();
+      setEmail("");
+      setPassword("");
+      setShowPassword(false);
+      setLocalError(null);
       try {
         WebBrowser.dismissAuthSession();
       } catch {}

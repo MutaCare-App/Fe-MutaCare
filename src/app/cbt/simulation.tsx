@@ -36,7 +36,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 iconWithClassName(CaretDownIcon);
 iconWithClassName(CaretLeftIcon);
@@ -70,6 +70,9 @@ export default function CBTSimulationScreen() {
   const [loadingAudioMsgId, setLoadingAudioMsgId] = useState<string | null>(null);
   const [isInstructionsExpanded, setIsInstructionsExpanded] = useState(false);
 
+  const insets = useSafeAreaInsets();
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
   const toggleInstructions = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setIsInstructionsExpanded((prev) => !prev);
@@ -78,6 +81,27 @@ export default function CBTSimulationScreen() {
   const scrollViewRef = useRef<ScrollView>(null);
   const player = useAudioPlayer(null);
   const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSub = Keyboard.addListener(showEvent, () => {
+      setIsKeyboardVisible(true);
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 150);
+    });
+
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      setIsKeyboardVisible(false);
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   // Set audio mode on mount
   useEffect(() => {
@@ -236,13 +260,13 @@ export default function CBTSimulationScreen() {
   const totalInstructions = instructions.length;
 
   return (
-    <KeyboardAvoidingView
-      className="flex-1 bg-white"
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}
-    >
+    <SafeAreaView className="flex-1 bg-white" edges={['top', 'left', 'right']}>
       <StatusBar style="dark" />
-      <SafeAreaView className="flex-1" edges={['top', 'bottom', 'left', 'right']}>
+      <KeyboardAvoidingView
+        className="flex-1"
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}
+      >
         {/* Header */}
         <View className="h-14 flex-row items-center justify-between px-5 border-b border-neutral-100">
           <Pressable
@@ -299,54 +323,71 @@ export default function CBTSimulationScreen() {
           </Pressable>
 
           {isInstructionsExpanded && (
-            <View className="px-5 pb-3.5 pt-1 border-t border-neutral-200/60 gap-3 bg-white">
-              {/* Purpose */}
-              <View className="p-2.5 bg-primary-100/30 rounded-xl border border-primary-200/50">
-                <Text className="font-poppins-bold text-[10px] text-primary-300 uppercase tracking-wider mb-0.5">
-                  Tujuan Sesi Latihan:
-                </Text>
-                <Text className="font-poppins text-xs text-neutral-700 leading-4">
-                  {purpose || 'Latih pikiran rasional barumu dalam percakapan nyata yang santai.'}
-                </Text>
-              </View>
+            <View className="border-t border-neutral-200/60 bg-white">
+              <ScrollView
+                style={{ maxHeight: isKeyboardVisible ? 115 : 200 }}
+                contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 6, paddingBottom: 12, gap: 8 }}
+                nestedScrollEnabled={true}
+                showsVerticalScrollIndicator={true}
+                keyboardShouldPersistTaps="handled"
+              >
+                {/* Purpose */}
+                <View className="p-2.5 bg-primary-100/30 rounded-xl border border-primary-200/50">
+                  <Text className="font-poppins-bold text-[10px] text-primary-300 uppercase tracking-wider mb-0.5">
+                    Tujuan Sesi Latihan:
+                  </Text>
+                  <Text className="font-poppins text-xs text-neutral-700 leading-4">
+                    {purpose || 'Latih pikiran rasional barumu dalam percakapan nyata yang santai.'}
+                  </Text>
+                </View>
 
-              {/* Progressive Checklist */}
-              <View className="gap-2">
-                <Text className="font-poppins-bold text-[11px] text-neutral-700">
-                  Instruksi Percakapan Bertahap:
-                </Text>
-                {instructions.map((inst) => (
-                  <View key={inst.id} className="flex-row items-center gap-2">
-                    {inst.isCompleted ? (
-                      <CheckCircleIcon className="text-emerald-600" size={16} weight="fill" />
-                    ) : (
-                      <CircleIcon className="text-neutral-300" size={16} weight="bold" />
-                    )}
-                    <Text
-                      className={`flex-1 font-poppins text-xs leading-4 ${
-                        inst.isCompleted
-                          ? 'text-emerald-800 line-through'
-                          : 'text-neutral-700'
-                      }`}
-                    >
-                      {inst.text}
-                    </Text>
-                  </View>
-                ))}
-              </View>
+                {/* Progressive Checklist */}
+                <View className="gap-2">
+                  <Text className="font-poppins-bold text-[11px] text-neutral-700">
+                    Instruksi Percakapan Bertahap:
+                  </Text>
+                  {instructions.map((inst) => (
+                    <View key={inst.id} className="flex-row items-center gap-2">
+                      {inst.isCompleted ? (
+                        <CheckCircleIcon className="text-emerald-600" size={16} weight="fill" />
+                      ) : (
+                        <CircleIcon className="text-neutral-300" size={16} weight="bold" />
+                      )}
+                      <Text
+                        className={`flex-1 font-poppins text-xs leading-4 ${
+                          inst.isCompleted
+                            ? 'text-emerald-800 line-through'
+                            : 'text-neutral-700'
+                        }`}
+                      >
+                        {inst.text}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              </ScrollView>
             </View>
           )}
         </View>
 
         {/* Natural Feedback Banner */}
         {latestFeedback ? (
-          <View className="px-5 py-2.5 bg-emerald-50 border-b border-emerald-200 flex-row items-center gap-2">
-            <SparkleIcon className="text-emerald-600" size={18} weight="fill" />
+          <View
+            className={`px-5 ${
+              isKeyboardVisible ? 'py-1.5' : 'py-2.5'
+            } bg-emerald-50 border-b border-emerald-200 flex-row items-center gap-2`}
+          >
+            <SparkleIcon className="text-emerald-600" size={isKeyboardVisible ? 14 : 18} weight="fill" />
             <View className="flex-1">
-              <Text className="font-poppins-bold text-[10px] text-emerald-800 uppercase tracking-wider">
-                Umpan Balik AI
-              </Text>
-              <Text className="font-poppins text-xs text-emerald-900 leading-4">
+              {!isKeyboardVisible && (
+                <Text className="font-poppins-bold text-[10px] text-emerald-800 uppercase tracking-wider">
+                  Umpan Balik AI
+                </Text>
+              )}
+              <Text
+                className="font-poppins text-xs text-emerald-900 leading-4"
+                numberOfLines={isKeyboardVisible ? 1 : 3}
+              >
                 {latestFeedback}
               </Text>
             </View>
@@ -417,9 +458,9 @@ export default function CBTSimulationScreen() {
           })}
 
           {isSendingTurn && (
-            <View className="self-start p-3 bg-neutral-100 rounded-2xl flex-row items-center gap-2 border border-neutral-200">
-              <ActivityIndicator size="small" color="#3B82F6" />
-              <Text className="font-poppins text-xs text-neutral-600">
+            <View className="max-w-[85%] self-start p-3 bg-neutral-100 rounded-2xl rounded-bl-none flex-row items-center gap-2.5 border border-neutral-200">
+              <ActivityIndicator size="small" color="#007799" />
+              <Text className="flex-1 font-poppins text-xs text-neutral-600 leading-4">
                 AI sedang mendengarkan & mengevaluasi kemajuanmu...
               </Text>
             </View>
@@ -428,7 +469,12 @@ export default function CBTSimulationScreen() {
 
         {/* Completed All Instructions Banner */}
         {allInstructionsCompleted && (
-          <View className="p-4 bg-emerald-100 border-t border-emerald-300 items-center">
+          <View
+            style={{
+              paddingBottom: isKeyboardVisible ? 8 : Math.max(insets.bottom, 12),
+            }}
+            className="p-4 bg-emerald-100 border-t border-emerald-300 items-center"
+          >
             <Text className="font-poppins-bold text-xs text-emerald-900 mb-2 text-center">
               🎉 Hebat! Semua instruksi percakapan telah berhasil kamu selesaikan!
             </Text>
@@ -445,7 +491,12 @@ export default function CBTSimulationScreen() {
 
         {/* Speak / Recording Controls & Text Input (when not completed yet) */}
         {!allInstructionsCompleted && (
-          <View className="p-3.5 bg-white border-t border-neutral-100">
+          <View
+            style={{
+              paddingBottom: isKeyboardVisible ? 8 : Math.max(insets.bottom, 12),
+            }}
+            className="p-3.5 bg-white border-t border-neutral-100"
+          >
             {isRecording ? (
               <View className="w-full items-center py-2">
                 <Text className="font-poppins-semibold text-xs text-red-500 mb-2">
@@ -475,7 +526,7 @@ export default function CBTSimulationScreen() {
                     onFocus={() => {
                       setTimeout(() => {
                         scrollViewRef.current?.scrollToEnd({ animated: true });
-                      }, 100);
+                      }, 150);
                     }}
                   />
                   {textInput.trim().length > 0 ? (
@@ -502,7 +553,7 @@ export default function CBTSimulationScreen() {
             )}
           </View>
         )}
-      </SafeAreaView>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
