@@ -17,7 +17,6 @@ import {
 import { iconWithClassName } from "@/lib/iconWithClassName";
 import { ArrowLeftIcon } from "phosphor-react-native/src/icons/ArrowLeft";
 import { ShareNetworkIcon } from "phosphor-react-native/src/icons/ShareNetwork";
-import { BookmarkSimpleIcon } from "phosphor-react-native/src/icons/BookmarkSimple";
 import { ClockIcon } from "phosphor-react-native/src/icons/Clock";
 import { CheckCircleIcon } from "phosphor-react-native/src/icons/CheckCircle";
 import { SparkleIcon } from "phosphor-react-native/src/icons/Sparkle";
@@ -26,7 +25,6 @@ import { LinearGradient } from "expo-linear-gradient";
 
 iconWithClassName(ArrowLeftIcon);
 iconWithClassName(ShareNetworkIcon);
-iconWithClassName(BookmarkSimpleIcon);
 iconWithClassName(ClockIcon);
 iconWithClassName(CheckCircleIcon);
 iconWithClassName(SparkleIcon);
@@ -35,7 +33,6 @@ iconWithClassName(CaretRightIcon);
 export default function ArticleDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [isBookmarked, setIsBookmarked] = useState(false);
   const [imageError, setImageError] = useState(false);
 
   const article = id ? getArticleById(id) : undefined;
@@ -95,26 +92,14 @@ export default function ArticleDetailScreen() {
             </Text>
           </View>
 
-          <View className="flex-row items-center gap-2">
-            <Pressable
-              onPress={() => setIsBookmarked((prev) => !prev)}
-              hitSlop={8}
-              className="p-1.5 rounded-full active:bg-neutral-100"
-            >
-              <BookmarkSimpleIcon
-                size={22}
-                weight={isBookmarked ? "fill" : "regular"}
-                className={isBookmarked ? "text-[#E11462]" : "text-neutral-700"}
-              />
-            </Pressable>
-            <Pressable
-              onPress={handleShare}
-              hitSlop={8}
-              className="p-1.5 rounded-full active:bg-neutral-100"
-            >
-              <ShareNetworkIcon size={22} className="text-neutral-700" />
-            </Pressable>
-          </View>
+          <Pressable
+            onPress={handleShare}
+            hitSlop={8}
+            className="p-1.5 rounded-full active:bg-neutral-100"
+            accessibilityLabel="Bagikan Artikel"
+          >
+            <ShareNetworkIcon size={22} className="text-neutral-700" />
+          </Pressable>
         </View>
       </SafeAreaView>
 

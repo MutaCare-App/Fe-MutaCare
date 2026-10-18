@@ -37,6 +37,13 @@ export default function Register() {
       useAuthStore.getState().resetLoading();
       setIsGoogleSubmitting(false);
       clearError();
+      setFullName("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+      setShowPassword(false);
+      setShowConfirmPassword(false);
+      setLocalError(null);
       try {
         WebBrowser.dismissAuthSession();
       } catch {}
