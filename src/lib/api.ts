@@ -73,8 +73,7 @@ export async function apiFetch<T>(
 
       const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
       const pathname = cleanEndpoint.split('?')[0].replace(/\/+$/, '') || '/';
-      const isAuthEndpoint =
-        pathname === '/auth/login' || pathname === '/auth/register';
+      const isAuthEndpoint = pathname.startsWith('/auth');
 
       if (isAuthError && !isAuthEndpoint && authErrorHandler) {
         authErrorHandler(data?.message || 'Sesi Anda telah berakhir. Silakan masuk kembali.');

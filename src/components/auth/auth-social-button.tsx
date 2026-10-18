@@ -1,6 +1,6 @@
 import { Text } from "@/components/ui/text";
 import React from "react";
-import { ActivityIndicator, Image, Pressable, View } from "react-native";
+import { ActivityIndicator, Image, TouchableOpacity, View } from "react-native";
 
 export interface AuthSocialButtonProps {
   title?: string;
@@ -18,25 +18,29 @@ export function AuthSocialButton({
   return (
     <View className="flex justify-center items-center py-4 gap-2">
       <Text className="font-poppins text-neutral-700">{title}</Text>
-      <Pressable
+      <TouchableOpacity
         onPress={onPress}
         disabled={disabled || isLoading}
-        className="h-16 w-16 border border-primary-300 rounded-2xl items-center justify-center active:bg-neutral-100"
+        activeOpacity={0.7}
+        className="h-16 w-16 border border-primary-300 rounded-2xl items-center justify-center bg-white"
         style={{ opacity: disabled || isLoading ? 0.6 : 1 }}
       >
         {isLoading ? (
           <ActivityIndicator color="#40513B" size="small" />
         ) : (
-          <Image
-            source={require("@/../assets/logo/google-logo.png")}
-            className="h-10 w-10"
-            resizeMode="contain"
-          />
+          <View pointerEvents="none">
+            <Image
+              source={require("@/../assets/logo/google-logo.png")}
+              className="h-10 w-10"
+              resizeMode="contain"
+            />
+          </View>
         )}
-      </Pressable>
+      </TouchableOpacity>
     </View>
   );
 }
 
 export default AuthSocialButton;
+
 
